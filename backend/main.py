@@ -1,9 +1,18 @@
-from fastapi import Depends, FastAPI
-from fastapi.security import OAuth2PasswordBearer
+import os
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI
 
-app = FastAPI()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+from routes import auth_router, user_router
 
-@app.get("/items/")
-async def read_items(token: str = Depends(oauth2_scheme)):
-    return {"token": token}
+app = FastAPI(title=os.getenv("PROJECT_NAME"))
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.getenv("ORIGINS"),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(auth_router.router, prefix='/auth')
+app.include_router(user_router.router, prefix='/user')
