@@ -3,7 +3,7 @@ from controllers.auth_controller import AuthController
 from fastapi import Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from db.schemas.user_schema import AuthSchema, SignupSchema
+from db.models.user_model import AuthModel, SignupModel
 
 auth_controller = AuthController()
 security = HTTPBearer()
@@ -11,12 +11,12 @@ router = APIRouter(tags=['Auth'])
 
 
 @router.post("/signup")
-def signup(user_details: SignupSchema):
+def signup(user_details: SignupModel):
     return auth_controller.signup(user_details)
 
 
 @router.post('/login')
-def login(user_details: AuthSchema):
+def login(user_details: AuthModel):
     return auth_controller.login(user_details)
 
 

@@ -2,15 +2,16 @@ import os
 from deta import Deta
 from dotenv import load_dotenv
 
-from db.handlers.user_database_handler import UserDatabaseHandler
-from db.schemas.user_schema import AuthSchema, UserResponse, UserSchemaInDB
+from db.abstract_database_handler import AbstractDetaDatabaseHandler
+from db.handlers.user_deta_database_handler import UserDetaDetaDatabaseHandler
+from db.models.user_model import AbstractUserModelInDB, UserResponse
 
 
-class DatabaseHandler():
+class DetaDatabaseHandler(AbstractDetaDatabaseHandler):
     def __init__(self):
         load_dotenv()
         self.__deta = Deta(os.getenv('DETA_PROJECT_KEY'))
-        self.__user_handler = UserDatabaseHandler(self.__deta)
+        self.__user_handler = UserDetaDetaDatabaseHandler(self.__deta)
 
     def get_user_by_email(self, email: str):
         '''Получение одного пользователя по email из базы данных'''
@@ -23,6 +24,6 @@ class DatabaseHandler():
             return UserResponse(**user)
         return user
 
-    def create_user(self, user: UserSchemaInDB):
+    def create_user(self, user: AbstractUserModelInDB):
         '''Добавление пользователя в базу данных'''
         return self.__user_handler.create_user(user)

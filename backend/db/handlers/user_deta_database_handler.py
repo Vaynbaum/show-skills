@@ -1,9 +1,9 @@
 from deta import Deta
 
-from db.schemas.user_schema import AuthSchema, UserSchemaInDB
+from db.models.user_model import AbstractUserModelInDB
 
 
-class UserDatabaseHandler():
+class UserDetaDetaDatabaseHandler:
     def __init__(self, deta: Deta):
         self.__users_db = deta.Base('users')
 
@@ -19,6 +19,6 @@ class UserDatabaseHandler():
             {field: value}, limit=1)
         return res_fetch.items[0] if len(res_fetch.items) > 0 else None
 
-    def create_user(self, user: UserSchemaInDB):
+    def create_user(self, user: AbstractUserModelInDB):
         '''Добавление пользователя в базу данных'''
         return self.__users_db.put(user.dict())
