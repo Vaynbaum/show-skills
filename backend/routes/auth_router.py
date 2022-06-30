@@ -3,9 +3,12 @@ from controllers.auth_controller import AuthController
 from fastapi import Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from db.abstract_database_handler import AbstractDatabaseHandler
+from db.database_handler import DatabaseHandler
 from db.models.user_model import AuthModel, SignupModel
 
-auth_controller = AuthController()
+database_handler: AbstractDatabaseHandler = DatabaseHandler()
+auth_controller = AuthController(database_handler)
 security = HTTPBearer()
 router = APIRouter(tags=['Auth'])
 

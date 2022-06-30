@@ -1,1 +1,1 @@
-from .user_deta_database_handler import UserDetaDetaDatabaseHandler
+from .user_database_handler import UserDatabaseHandler
