@@ -1,5 +1,10 @@
-deta
+deta[async]==1.1.0a2
 fastapi
 uvicorn
 pyjwt
 passlib[bcrypt]
+transliterate
+Pillow
+python-multipart
+pyparsing
+python-dotenv

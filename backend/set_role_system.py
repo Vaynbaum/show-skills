@@ -2,10 +2,10 @@ import os
 from dotenv import load_dotenv
 from deta import Deta
 
-import datastore
+from datastore import roles
 
 load_dotenv()
-deta = Deta(os.getenv('DETA_PROJECT_KEY'))
+deta = Deta(os.getenv("DETA_PROJECT_KEY"))
 
 
 def main():
@@ -13,8 +13,8 @@ def main():
 
     roles = roles_base.fetch()
     if roles.count == 0:
-        roles_base.put_many(datastore.roles)
+        roles_base.put_many(roles)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
