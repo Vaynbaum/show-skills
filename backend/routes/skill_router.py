@@ -10,8 +10,8 @@ from models.items import ResponseItems
 from models.skill_model import SkillCreateDataModel, SkillModelInDB
 from drive.abstract_drive_handler import AbstractDriveHandler
 from drive.drive_handler import DriveHandler
-from handlers.role_access.role_access_handler import AccessHandler, RoleAccessModel
-from consts.datastore import ADMIN, SUPER_ADMIN
+from handlers.role_access_handler import AccessHandler, RoleAccessModel
+from consts.name_roles import ADMIN, SUPER_ADMIN
 
 
 database_handler: AbstractDatabaseHandler = DatabaseHandler()
@@ -29,7 +29,8 @@ async def create(
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
     @role_access_handler.maker_role_access(
-        credentials, [RoleAccessModel(name=SUPER_ADMIN), RoleAccessModel(name=ADMIN)]
+        credentials.credentials,
+        [RoleAccessModel(name=SUPER_ADMIN), RoleAccessModel(name=ADMIN)],
     )
     async def inside_func(skill):
         return await skill_controller.create_skill(skill)
@@ -44,12 +45,13 @@ async def upload_icon_skill(
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
     @role_access_handler.maker_role_access(
-        credentials, [RoleAccessModel(name=SUPER_ADMIN), RoleAccessModel(name=ADMIN)]
+        credentials.credentials,
+        [RoleAccessModel(name=SUPER_ADMIN), RoleAccessModel(name=ADMIN)],
     )
-    async def inside_func(file):
+    async def inside_func(name, file):
         return skill_controller.upload_icon_skill(name, file)
 
-    return await inside_func(file)
+    return await inside_func(name, file)
 
 
 @router.get("/icon/{name_file}")

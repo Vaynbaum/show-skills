@@ -1,14 +1,13 @@
+from consts.name_roles import USER
+from db.abstract_database_handler import AbstractDatabaseHandler
 from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
-
-from db.abstract_database_handler import AbstractDatabaseHandler
+from handlers.jwt_handler import JWTHandler
+from handlers.password_handler import PasswordHandler
 from models.message_model import MessageModel
 from models.role_model import RoleDataModel
 from models.token_model import AccessTokenModel, PairTokenModel
-from models.user_model import AuthModel, UserModelInDB, SignupModel
-from handlers.jwt_handler import JWTHandler
-from handlers.password_handler import PasswordHandler
-from consts.datastore import USER
+from models.user_model import AuthModel, SignupModel, UserModelInDB
 
 
 class AuthController:
@@ -22,16 +21,19 @@ class AuthController:
         user = await self.__database_controller.get_user_by_email(user_details.email)
         if user != None:
             return MessageModel(message="Account already exists")
+        user = await self.__database_controller.get_user_by_username(user_details.username)
+        if user != None:
+            return MessageModel(message="Username is already occupied")
+        
         try:
             hashed_password = self.__password_handler.encode_password(
                 user_details.password
             )
-            user_username = UserModelInDB.get_username_by_email(user_details.email)
             role = await self.__database_controller.get_role_by_name_en(USER)
 
             user = UserModelInDB(
                 email=user_details.email,
-                username=user_username,
+                username=user_details.username,
                 password=hashed_password,
                 lastname=user_details.lastname,
                 firstname=user_details.firstname,
@@ -39,17 +41,8 @@ class AuthController:
                 role=RoleDataModel(**role.dict()) if (role is not None) else None,
                 subscriptions=[],
                 followers=[],
+                links=[],
             )
-            print(user)
-            # user = UserModelInDB(
-            #     email=user_details.email,
-            #     username=user_username,
-            #     password=hashed_password,
-            #     lastname=user_details.lastname,
-            #     firstname=user_details.firstname,
-            #     role_key=role.key if (role is not None) else None,
-            #     role=RoleDataModel(**role.dict()) if (role is not None) else None,
-            # )
             await self.__database_controller.create_user(user)
             return MessageModel(message="Registration is successful")
         except:

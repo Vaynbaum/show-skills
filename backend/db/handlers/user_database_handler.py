@@ -19,7 +19,6 @@ class UserDatabaseHandler:
 
     async def get_by_query(self, query, limit, last_user_key):
         """Получение пользователей по запросу"""
-        print(query, limit, last_user_key)
         return await self.__users_db.fetch(query)
 
     async def create(self, user: UserModelInDB) -> Union[UserModelInDB, None]:
@@ -36,3 +35,11 @@ class UserDatabaseHandler:
 
     async def put_many(self, users: list):
         return await self.__users_db.put_many(users)
+
+    async def append_links(self, links: list, key: str) -> None:
+        return await self.__users_db.update(
+            {"links": self.__users_db.util.append(links)}, key
+        )
+
+    async def update_simple_data(self, data: dict, key: str) -> None:
+        return await self.__users_db.update(data, key)

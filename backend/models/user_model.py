@@ -1,7 +1,10 @@
 from typing import List, Union
 from pydantic import BaseModel
 
+from models.link_model import LinkModel
 from models.role_model import RoleDataModel
+from models.short_response_user_model import ShortResponseUserModel
+from models.subscription_model import SubscriptionModel
 
 
 class AuthModel(BaseModel):
@@ -19,6 +22,7 @@ class AuthModel(BaseModel):
 
 class SignupModel(BaseModel):
     email: str
+    username: str
     password: str
     lastname: str
     firstname: str
@@ -27,6 +31,7 @@ class SignupModel(BaseModel):
         schema_extra = {
             "example": {
                 "email": "ivanov@mail.ru",
+                "username": "ivanov",
                 "password": "secret",
                 "lastname": "Иванов",
                 "firstname": "Иван",
@@ -41,19 +46,6 @@ class UserUpdateModel(BaseModel):
     firstname: str
 
 
-class ShortResponseUserModel(BaseModel):
-    username: str
-    lastname: str
-    key: Union[str, None]
-    firstname: str
-    url_photo: Union[str, None]
-
-
-class SubscriptionModel(BaseModel):
-    favorite: ("ShortResponseUserModel")
-    number_visits: int = 1
-
-
 class UserModelInDB(BaseModel):
     email: str
     username: str
@@ -66,13 +58,9 @@ class UserModelInDB(BaseModel):
     age: Union[int, None]
     url_photo: Union[str, None]
     place_residence: Union[str, None]
-    followers: List[("ShortResponseUserModel")]
-    subscriptions: List[("SubscriptionModel")]
-
-    @staticmethod
-    def get_username_by_email(email: str) -> str:
-        email_splitted: str = email.split("@")
-        return email_splitted[0] if len(email_splitted) > 1 else email
+    followers: List[ShortResponseUserModel]
+    subscriptions: List[SubscriptionModel]
+    links: List[LinkModel]
 
 
 class ResponseUserModel(ShortResponseUserModel):

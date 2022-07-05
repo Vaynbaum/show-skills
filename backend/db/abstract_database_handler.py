@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Union
+from models.event_model import EventModelInDB, EventModelInput
 from models.items import ResponseItems
 
 from models.role_model import RoleModelInDB
@@ -31,6 +32,16 @@ class AbstractDatabaseHandler(ABC):
     # ) -> ResponseItems[UserModelInDB]:
     #     """Получение пользователей по сложному запросу"""
     #     pass
+
+    @abstractmethod
+    async def append_links_to_user(self, links: list, key: str) -> None:
+        """Добавление ссылок пользователя в базу данных"""
+        pass
+
+    @abstractmethod
+    async def update_simple_data_to_user(self, data: dict, key: str) -> None:
+        """Изменение данных пользователя в базе данных"""
+        pass
 
     @abstractmethod
     async def create_user(self, user: UserModelInDB) -> Union[UserModelInDB, None]:
@@ -77,4 +88,30 @@ class AbstractDatabaseHandler(ABC):
         self, limit, last_user_key
     ) -> ResponseItems[SkillModelInDB]:
         """Получение всех навыков"""
+        pass
+
+    @abstractmethod
+    async def create_event(self, event: EventModelInDB) -> EventModelInDB:
+        pass
+
+    @abstractmethod
+    async def get_event_by_query(self, query) -> ResponseItems[EventModelInDB]:
+        pass
+
+    @abstractmethod
+    async def get_all_events(self) -> ResponseItems[EventModelInDB]:
+        pass
+
+    @abstractmethod
+    async def delete_event_by_key(self, key: str) -> None:
+        """Удаление пользователя из базы данных по ключу"""
+        pass
+
+    @abstractmethod
+    async def get_event_by_key(self, key: str) -> Union[EventModelInDB, None]:
+        pass
+
+    @abstractmethod
+    async def update_event_by_key(self, event: EventModelInput, key: str) -> None:
+        """Удаление пользователя из базы данных по ключу"""
         pass

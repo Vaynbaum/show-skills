@@ -6,7 +6,7 @@ from models.attachments_model import AttachmentModel
 from models.comment_model import CommentModel
 from models.like_model import LikeModel
 from models.skill_model import SkillModelInDB
-from models.user_model import ResponseUserModel
+from models.short_response_user_model import ShortResponseUserModel
 
 
 class PostModel(BaseModel):
@@ -14,8 +14,7 @@ class PostModel(BaseModel):
     name: str
     date: datetime
     text: str
-    # type_object: int
-    author: ResponseUserModel
+    author: ShortResponseUserModel
     author_key: str
     skills: List[TypeVar("SkillModelInDB", bound=SkillModelInDB)]
     attachments: List[TypeVar("AttachmentModel", bound=AttachmentModel)]

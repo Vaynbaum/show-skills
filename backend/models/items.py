@@ -7,4 +7,4 @@ Item = TypeVar("Item")
 class ResponseItems(GenericModel, Generic[Item]):
     items: List[Item]
     count: int
-    last: Union[str, None]
+    last: str = None
