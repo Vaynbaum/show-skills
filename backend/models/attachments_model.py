@@ -1,6 +1,5 @@
 from typing import Union
 from pydantic import BaseModel
-from datetime import datetime
 
 
 class AttachmentModel(BaseModel):

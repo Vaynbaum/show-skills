@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from controllers.user_controller import UserController
 from db.abstract_database_handler import AbstractDatabaseHandler
 from models.event_model import EventModelInDB, EventModelInput
-from models.items import ResponseItems
-from models.short_response_user_model import ShortResponseUserModel
+from models.response_items import ResponseItems
+from models.short_user_model_response import ShortUserModelResponse
 from models.message_model import MessageModel
 
 
@@ -19,7 +19,7 @@ class EventController:
 
     async def create_event(self, event: EventModelInput, token: str):
         user = await self.__user_controller.get_user_by_token(token)
-        result = await self.__database_controller.get_event_by_query(
+        result = await self.__database_controller.get_events_by_query(
             {
                 "name": event.name,
                 "format_event": event.format_event,
@@ -30,13 +30,15 @@ class EventController:
         )
         if result.count > 0:
             raise HTTPException(status_code=400, detail="Event already exists")
-        author = ShortResponseUserModel(**user.dict())
+        author = ShortUserModelResponse(**user.dict())
         event = EventModelInDB(**event.dict(), author=author)
         await self.__database_controller.create_event(event)
         return MessageModel(message="Event successful created")
 
-    async def get_all_events(self):
-        return await self.__database_controller.get_all_events()
+    async def get_all_events(self, limit, last_event_key):
+        return await self.__database_controller.get_all_events(
+            limit if limit else None, last_event_key if last_event_key else None
+        )
 
     async def delete_event(self, key: str) -> MessageModel:
         await self.__database_controller.delete_event_by_key(key)
@@ -49,7 +51,7 @@ class EventController:
         return event.author.key
 
     async def get_events_by_subscription(
-        self, next_days, token
+        self, next_days, token, limit, last_event_key
     ) -> ResponseItems[EventModelInDB]:
         user = await self.__user_controller.get_user_by_token(token)
         if len(user.subscriptions) == 0:
@@ -70,13 +72,15 @@ class EventController:
                 user_keys = [
                     {"author.key": subs.favorite.key} for subs in user.subscriptions
                 ]
-        return await self.__database_controller.get_event_by_query(user_keys)
+        return await self.__database_controller.get_events_by_query(
+            user_keys, limit, last_event_key
+        )
 
     async def get_event_by_user_key(
-        self, user_key: str
+        self, user_key: str, limit, last_event_key
     ) -> ResponseItems[EventModelInDB]:
-        return await self.__database_controller.get_event_by_query(
-            {"author.key": user_key}
+        return await self.__database_controller.get_events_by_query(
+            {"author.key": user_key}, limit, last_event_key
         )
 
     async def update_event(self, event: EventModelInput, event_key: str):

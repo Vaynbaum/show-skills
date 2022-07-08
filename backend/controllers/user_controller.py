@@ -2,9 +2,9 @@ from typing import Union
 
 from fastapi import HTTPException
 from db.abstract_database_handler import AbstractDatabaseHandler
-from models.items import ResponseItems
+from models.response_items import ResponseItems
 from models.message_model import MessageModel
-from models.user_model import UserModelInDB, ResponseUserModel
+from models.user_model import UserModelInDB, UserModelResponse
 from handlers.jwt_handler import JWTHandler
 
 
@@ -15,11 +15,11 @@ class UserController:
 
     async def get_user_by_username(
         self, username: Union[str, None]
-    ) -> Union[ResponseUserModel, None]:
+    ) -> Union[UserModelResponse, None]:
         """Получение пользователя по нику (username)"""
         if username != None:
             user = await self.__database_controller.get_user_by_username(username)
-            return ResponseUserModel(**user.dict())
+            return UserModelResponse(**user.dict())
         return None
 
     async def get_user_by_key(
@@ -32,7 +32,7 @@ class UserController:
 
     async def get_user_all(
         self, limit, last_user_key
-    ) -> ResponseItems[ResponseUserModel]:
+    ) -> ResponseItems[UserModelResponse]:
         """Получение всех пользователей"""
         return await self.__database_controller.get_user_all(
             limit if limit else None, last_user_key if last_user_key else None

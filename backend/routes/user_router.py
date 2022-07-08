@@ -6,48 +6,48 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from db.abstract_database_handler import AbstractDatabaseHandler
 from db.database_handler import DatabaseHandler
-from models.items import ResponseItems
+from models.response_items import ResponseItems
 from models.message_model import MessageModel
-from models.user_model import ResponseUserModel, UserUpdateDataModel
+from models.user_model import UserModelResponse, UserUpdateDataModel
 from consts.name_attribute_access_roles import NAME_ATTR_OWNER
 from consts.owner_enum import OwnerEnum
-from handlers.role_access_handler import AccessHandler, RoleAccessModel
+from handlers.access_handler import AccessHandler, RoleAccessModel
 from consts.name_roles import SUPER_ADMIN, USER, ADMIN
 
 database_handler: AbstractDatabaseHandler = DatabaseHandler()
 user_controller = UserController(database_handler)
 security = HTTPBearer()
-role_access_handler = AccessHandler(database_handler)
+access_handler = AccessHandler(database_handler)
 
 router = APIRouter(tags=["User"])
 
 
-@router.get("/all", responses={200: {"model": ResponseItems[ResponseUserModel]}})
-async def get_users(
+@router.get("/all", responses={200: {"model": ResponseItems[UserModelResponse]}})
+async def get_all_users(
     credentials: HTTPAuthorizationCredentials = Security(security),
-    limit: Union[int, None] = None,
-    last_user_key: Union[str, None] = None,
+    limit: int = None,
+    last_user_key: str = None,
 ):
-    @role_access_handler.maker_role_access(
+    @access_handler.maker_role_access(
         credentials.credentials,
         [RoleAccessModel(name=SUPER_ADMIN), RoleAccessModel(name=ADMIN)],
     )
-    async def inside_func():
+    async def inside_func(limit, last_user_key):
         return await user_controller.get_user_all(limit, last_user_key)
 
-    return await inside_func()
+    return await inside_func(limit, last_user_key)
 
 
-@router.get("/page/{username}", responses={200: {"model": ResponseUserModel}})
-async def get_by_username(username: str = Path(example="ivanov")):
+@router.get("/page/{username}", responses={200: {"model": UserModelResponse}})
+async def get_user_by_username(username: str = Path(example="ivanov")):
     return await user_controller.get_user_by_username(username)
 
 
 @router.delete("/", responses={200: {"model": MessageModel}})
-async def delete_by_key(
+async def delete_user_by_key(
     key: str, credentials: HTTPAuthorizationCredentials = Security(security)
 ):
-    @role_access_handler.maker_role_access(
+    @access_handler.maker_role_access(
         credentials.credentials,
         [
             RoleAccessModel(
@@ -58,7 +58,7 @@ async def delete_by_key(
         ],
         False,
     )
-    @role_access_handler.maker_owner_access(key)
+    @access_handler.maker_owner_access(key)
     async def inside_func(key):
         return await user_controller.delete_user_by_key(key)
 
@@ -66,12 +66,12 @@ async def delete_by_key(
 
 
 @router.put("/update")
-async def update_by_key(
+async def update_user_by_key(
     key: str,
     user: UserUpdateDataModel,
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
-    @role_access_handler.maker_role_access(
+    @access_handler.maker_role_access(
         credentials.credentials,
         [
             RoleAccessModel(
@@ -82,7 +82,7 @@ async def update_by_key(
         ],
         False,
     )
-    @role_access_handler.maker_owner_access(key)
+    @access_handler.maker_owner_access(key)
     def inside_func(key):
         return user_controller.delete_user_by_key(key)
 

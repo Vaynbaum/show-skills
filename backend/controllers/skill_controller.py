@@ -1,10 +1,12 @@
 from typing import Union
-from fastapi import UploadFile
+from fastapi import HTTPException, UploadFile
 from transliterate import translit
 from fastapi.responses import HTMLResponse, StreamingResponse
+from controllers.user_controller import UserController
 
 from db.abstract_database_handler import AbstractDatabaseHandler
-from models.items import ResponseItems
+from models.response_items import ResponseItems
+from models.message_model import MessageModel
 from models.skill_model import SkillCreateDataModel, SkillModelInDB
 from drive.abstract_drive_handler import AbstractDriveHandler
 
@@ -17,6 +19,7 @@ class SkillController:
     ):
         self.__database_controller = database_controller
         self.__driver_controller = driver_controller
+        self.__user_controller = UserController(database_controller)
 
     async def create_skill(
         self, skill: SkillCreateDataModel
@@ -41,3 +44,30 @@ class SkillController:
     ) -> ResponseItems[SkillModelInDB]:
         """Получение всех навыков из базы данных"""
         return await self.__database_controller.get_skill_all(limit, last_user_key)
+
+    async def add_skill(self, skill_key, token):
+        user = await self.__user_controller.get_user_by_token(token)
+        result = list(filter(lambda item: skill_key == item.key, user.skills))
+        if len(result) > 0:
+            raise HTTPException(status_code=400, detail="Skill already exists")
+        else:
+            skill = await self.__database_controller.get_skill_by_key(skill_key)
+            if skill is None:
+                raise HTTPException(status_code=400, detail="Skill not found")
+
+            await self.__database_controller.append_skills_to_user(
+                [skill.dict()], user.key
+            )
+            return MessageModel(message="Adding failed")
+
+    async def remove_skill(self, skill_key, token):
+        user = await self.__user_controller.get_user_by_token(token)
+        result = list(filter(lambda item: skill_key == item.key, user.skills))
+        if len(result) == 0:
+            raise HTTPException(status_code=400, detail="Skill not found")
+        else:
+            user.skills.remove(result[0])
+            await self.__database_controller.simple_data_update_to_user(
+                {"skills": (user.dict())["skills"]}, user.key
+            )
+            return MessageModel(message="Skill successfully removed")

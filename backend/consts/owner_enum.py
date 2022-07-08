@@ -1,4 +1,4 @@
-from pyparsing import Enum
+from enum import Enum
 
 
 class OwnerEnum(Enum):

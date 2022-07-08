@@ -5,7 +5,7 @@ from fastapi.security import HTTPAuthorizationCredentials
 from handlers.jwt_handler import JWTHandler
 from handlers.password_handler import PasswordHandler
 from models.message_model import MessageModel
-from models.role_model import RoleDataModel
+from models.role_model import RoleModelResponse
 from models.token_model import AccessTokenModel, PairTokenModel
 from models.user_model import AuthModel, SignupModel, UserModelInDB
 
@@ -21,10 +21,12 @@ class AuthController:
         user = await self.__database_controller.get_user_by_email(user_details.email)
         if user != None:
             return MessageModel(message="Account already exists")
-        user = await self.__database_controller.get_user_by_username(user_details.username)
+        user = await self.__database_controller.get_user_by_username(
+            user_details.username
+        )
         if user != None:
             return MessageModel(message="Username is already occupied")
-        
+
         try:
             hashed_password = self.__password_handler.encode_password(
                 user_details.password
@@ -38,10 +40,11 @@ class AuthController:
                 lastname=user_details.lastname,
                 firstname=user_details.firstname,
                 role_key=role.key if (role is not None) else None,
-                role=RoleDataModel(**role.dict()) if (role is not None) else None,
+                role=RoleModelResponse(**role.dict()) if (role is not None) else None,
                 subscriptions=[],
                 followers=[],
                 links=[],
+                skills=[],
             )
             await self.__database_controller.create_user(user)
             return MessageModel(message="Registration is successful")

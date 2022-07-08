@@ -2,7 +2,7 @@ from typing import Union
 from pydantic import BaseModel
 from datetime import datetime
 
-from models.short_response_user_model import ShortResponseUserModel
+from models.short_user_model_response import ShortUserModelResponse
 
 
 class CommentModel(BaseModel):
@@ -12,4 +12,4 @@ class CommentModel(BaseModel):
     name: str
     user_key: str
     post_key: str
-    author: ShortResponseUserModel
+    author: ShortUserModelResponse

@@ -15,16 +15,28 @@ security = HTTPBearer()
 router = APIRouter(tags=["Auth"])
 
 
-@router.post("/signup", responses={200: {"model": MessageModel}})
+@router.post(
+    "/signup",
+    responses={200: {"model": MessageModel}},
+    summary="Register in the system",
+)
 async def signup(user_details: SignupModel):
     return await auth_controller.signup(user_details)
 
 
-@router.post("/login", responses={200: {"model": PairTokenModel}})
+@router.post(
+    "/login",
+    responses={200: {"model": PairTokenModel}},
+    summary="Log in to the system",
+)
 async def login(user_details: AuthModel):
     return await auth_controller.login(user_details)
 
 
-@router.get("/refresh_token", responses={200: {"model": AccessTokenModel}})
+@router.get(
+    "/refresh_token",
+    responses={200: {"model": AccessTokenModel}},
+    summary="Create a new access token by refresh token",
+)
 async def refresh_token(credentials: HTTPAuthorizationCredentials = Security(security)):
     return auth_controller.refresh_token(credentials)

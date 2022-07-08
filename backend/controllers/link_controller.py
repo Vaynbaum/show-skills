@@ -30,7 +30,7 @@ class LinkController:
         result_find = list(filter(lambda item: url_link == item.url, user.links))
         if len(result_find) > 0:
             user.links.remove(result_find[0])
-            await self.__database_controller.update_simple_data_to_user(
+            await self.__database_controller.simple_data_update_to_user(
                 {"links": (user.dict())["links"]}, user.key
             )
             return MessageModel(message="Link successfully removed")

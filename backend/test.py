@@ -3,7 +3,15 @@ from deta import Deta
 from dotenv import load_dotenv
 
 load_dotenv()
-db = Deta(os.getenv("DETA_PROJECT_KEY")).Base("tests")
+db = Deta(os.getenv("DETA_PROJECT_KEY")).Base("messages")
+db.put(
+    {
+        "title": "Добавить навык",
+        "content": "Кулинария, приготовление салатов",
+        "read": False,
+        "completed": False,
+    }
+)
 # db.put_many(
 #     [
 #         {
@@ -35,3 +43,5 @@ db = Deta(os.getenv("DETA_PROJECT_KEY")).Base("tests")
 # # db.put_many(items=[{"key": "2"}, {"key": "1"}], expire_in=10)
 
 # print(timegm(((datetime(2022, 7, 10, 11) + timedelta(minutes=20))).timetuple()))
+# result = list(filter(lambda item: "admin" in item["name"], None))
+# print(len(result) == 0)

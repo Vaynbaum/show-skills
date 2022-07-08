@@ -4,7 +4,8 @@ from consts.name_roles import USER
 
 
 from db.abstract_database_handler import AbstractDatabaseHandler
-from models.user_model import ShortResponseUserModel
+from models.response_items import ResponseItems
+from models.user_model import ShortUserModelResponse
 from models.subscription_model import SubscriptionModel
 from models.message_model import MessageModel
 
@@ -39,7 +40,7 @@ class SubscriptionController:
 
         if favorite != None:
             subs = SubscriptionModel(favorite=favorite)
-            favorite.followers.append(ShortResponseUserModel(**follower.dict()))
+            favorite.followers.append(ShortUserModelResponse(**follower.dict()))
             follower.subscriptions.append(subs)
             users = [favorite.dict(), follower.dict()]
             result = await self.__database_controller.put_many_users(users)
@@ -76,3 +77,11 @@ class SubscriptionController:
                 raise HTTPException(status_code=400, detail="Unsubscribe failed")
             else:
                 return MessageModel(message="Unsubscribe successful")
+
+    async def get_subscriptions(self, token, limit) -> ResponseItems[SubscriptionModel]:
+        user = await self.__user_controller.get_user_by_token(token)
+
+        if limit is None:
+            return user.subscriptions
+        else:
+            return user.subscriptions[:limit]

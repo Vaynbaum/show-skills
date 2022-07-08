@@ -6,19 +6,19 @@ from fastapi import Security
 from controllers.skill_controller import SkillController
 from db.abstract_database_handler import AbstractDatabaseHandler
 from db.database_handler import DatabaseHandler
-from models.items import ResponseItems
+from models.response_items import ResponseItems
 from models.skill_model import SkillCreateDataModel, SkillModelInDB
 from drive.abstract_drive_handler import AbstractDriveHandler
 from drive.drive_handler import DriveHandler
-from handlers.role_access_handler import AccessHandler, RoleAccessModel
-from consts.name_roles import ADMIN, SUPER_ADMIN
+from handlers.access_handler import AccessHandler, RoleAccessModel
+from consts.name_roles import ADMIN, SUPER_ADMIN, USER
 
 
 database_handler: AbstractDatabaseHandler = DatabaseHandler()
 drive_handler: AbstractDriveHandler = DriveHandler()
 skill_controller = SkillController(database_handler, drive_handler)
 security = HTTPBearer()
-role_access_handler = AccessHandler(database_handler)
+access_handler = AccessHandler(database_handler)
 
 router = APIRouter(tags=["Skill"])
 
@@ -28,7 +28,7 @@ async def create(
     skill: SkillCreateDataModel,
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
-    @role_access_handler.maker_role_access(
+    @access_handler.maker_role_access(
         credentials.credentials,
         [RoleAccessModel(name=SUPER_ADMIN), RoleAccessModel(name=ADMIN)],
     )
@@ -44,7 +44,7 @@ async def upload_icon_skill(
     name: str = Query(example="Python"),
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
-    @role_access_handler.maker_role_access(
+    @access_handler.maker_role_access(
         credentials.credentials,
         [RoleAccessModel(name=SUPER_ADMIN), RoleAccessModel(name=ADMIN)],
     )
@@ -64,3 +64,32 @@ async def get_all_skills(
     limit: Union[int, None] = 100, last_user_key: Union[str, None] = None
 ):
     return await skill_controller.get_skill_all(limit, last_user_key)
+
+
+@router.post("/add/to_myself")
+async def add_skill_to_myself(
+    key_skill: str,
+    credentials: HTTPAuthorizationCredentials = Security(security),
+):
+    @access_handler.maker_role_access(
+        credentials.credentials,
+        [RoleAccessModel(name=USER)],
+    )
+    async def inside_func(key_skill, token):
+        return await skill_controller.add_skill(key_skill, token)
+
+    return await inside_func(key_skill, credentials.credentials)
+
+@router.delete("/remove/at_yorself")
+async def add_skill_to_myself(
+    key_skill: str,
+    credentials: HTTPAuthorizationCredentials = Security(security),
+):
+    @access_handler.maker_role_access(
+        credentials.credentials,
+        [RoleAccessModel(name=USER)],
+    )
+    async def inside_func(key_skill, token):
+        return await skill_controller.remove_skill(key_skill, token)
+
+    return await inside_func(key_skill, credentials.credentials)

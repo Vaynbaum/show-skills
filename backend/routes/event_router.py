@@ -7,14 +7,14 @@ from consts.owner_enum import OwnerEnum
 from controllers.event_controller import EventController
 from db.abstract_database_handler import AbstractDatabaseHandler
 from db.database_handler import DatabaseHandler
-from handlers.role_access_handler import AccessHandler
+from handlers.access_handler import AccessHandler
 from models.event_model import EventModelInput
 from models.role_access_model import RoleAccessModel
 from consts.name_roles import ADMIN, SUPER_ADMIN, USER
 
 security = HTTPBearer()
 database_handler: AbstractDatabaseHandler = DatabaseHandler()
-role_access_handler = AccessHandler(database_handler)
+access_handler = AccessHandler(database_handler)
 event_controller = EventController(database_handler)
 router = APIRouter(tags=["Event"])
 
@@ -24,7 +24,7 @@ async def create_event(
     event: EventModelInput,
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
-    @role_access_handler.maker_role_access(
+    @access_handler.maker_role_access(
         credentials.credentials, [RoleAccessModel(name=USER)]
     )
     async def inside_func(event, token):
@@ -36,38 +36,46 @@ async def create_event(
 @router.get("/all")
 async def get_all_events(
     credentials: HTTPAuthorizationCredentials = Security(security),
+    limit: int = None,
+    last_event_key: str = None,
 ):
-    @role_access_handler.maker_role_access(
+    @access_handler.maker_role_access(
         credentials.credentials,
         [RoleAccessModel(name=ADMIN), RoleAccessModel(name=SUPER_ADMIN)],
     )
-    async def inside_func():
-        return await event_controller.get_all_events()
+    async def inside_func(limit, last_event_key):
+        return await event_controller.get_all_events(limit, last_event_key)
 
-    return await inside_func()
+    return await inside_func(limit, last_event_key)
 
 
 @router.get("/subscription")
 async def get_events_by_subscription(
     next_days: int = None,
+    limit: int = None,
+    last_event_key: str = None,
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
-    @role_access_handler.maker_role_access(
+    @access_handler.maker_role_access(
         credentials.credentials,
         [RoleAccessModel(name=USER)],
     )
-    async def inside_func(next_days, token):
-        return await event_controller.get_events_by_subscription(next_days, token)
+    async def inside_func(next_days, token, limit, last_event_key):
+        return await event_controller.get_events_by_subscription(
+            next_days, token, limit, last_event_key
+        )
 
-    return await inside_func(next_days, credentials.credentials)
+    return await inside_func(next_days, credentials.credentials, limit, last_event_key)
 
 
 @router.get("/user")
 async def get_events_by_user(
     key: str,
+    limit: int = None,
+    last_event_key: str = None,
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
-    @role_access_handler.maker_role_access(
+    @access_handler.maker_role_access(
         credentials.credentials,
         [
             RoleAccessModel(name=SUPER_ADMIN),
@@ -75,17 +83,17 @@ async def get_events_by_user(
             RoleAccessModel(name=USER),
         ],
     )
-    async def inside_func(key):
-        return await event_controller.get_event_by_user_key(key)
+    async def inside_func(key, limit, last_event_key):
+        return await event_controller.get_event_by_user_key(key, limit, last_event_key)
 
-    return await inside_func(key)
+    return await inside_func(key, limit, last_event_key)
 
 
 @router.delete("/delete")
 async def delete_event(
     key: str, credentials: HTTPAuthorizationCredentials = Security(security)
 ):
-    @role_access_handler.maker_role_access(
+    @access_handler.maker_role_access(
         credentials.credentials,
         [
             RoleAccessModel(
@@ -96,7 +104,7 @@ async def delete_event(
         ],
         False,
     )
-    @role_access_handler.maker_owner_access(
+    @access_handler.maker_owner_access(
         await event_controller.get_key_author_by_event_key(key),
     )
     async def inside_func(key):
@@ -111,14 +119,14 @@ async def edit_event(
     event: EventModelInput,
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
-    @role_access_handler.maker_role_access(
+    @access_handler.maker_role_access(
         credentials.credentials,
         [
             RoleAccessModel(name=USER, attributes={NAME_ATTR_OWNER: OwnerEnum.OWN}),
         ],
         False,
     )
-    @role_access_handler.maker_owner_access(
+    @access_handler.maker_owner_access(
         await event_controller.get_key_author_by_event_key(event_key),
     )
     async def inside_func(event, event_key):

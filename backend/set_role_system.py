@@ -13,9 +13,13 @@ def main():
     if (roles_base.fetch()).count == 0:
         roles_base.put_many(
             [
-                {"name_ru": "супер-администратор", "name_en": SUPER_ADMIN},
-                {"name_ru": "администратор", "name_en": ADMIN},
-                {"name_ru": "пользователь", "name_en": USER},
+                {
+                    "name_ru": "супер-администратор",
+                    "name_en": SUPER_ADMIN,
+                    "can_assign": False,
+                },
+                {"name_ru": "администратор", "name_en": ADMIN, "can_assign": True},
+                {"name_ru": "пользователь", "name_en": USER, "can_assign": True},
             ]
         )
 

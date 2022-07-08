@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
-from models.short_response_user_model import ShortResponseUserModel
+from models.short_user_model_response import ShortUserModelResponse
 
 
 class SubscriptionModel(BaseModel):
-    favorite: ShortResponseUserModel
+    favorite: ShortUserModelResponse
     number_visits: int = 1

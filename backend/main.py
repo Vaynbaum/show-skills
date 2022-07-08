@@ -5,15 +5,25 @@ from dotenv import load_dotenv
 
 from routes import (
     auth_router,
+    role_router,
     skill_router,
     user_router,
     subscription_router,
     link_router,
     event_router,
 )
+import description
+
 
 load_dotenv()
-app = FastAPI(title=os.getenv("PROJECT_NAME"))
+app = FastAPI(
+    title=os.getenv("PROJECT_NAME"),
+    description=description.description,
+    contact={
+        "name": "skill-show",
+        "email": "mr.vaynbaum@mail.ru",
+    },
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -29,3 +39,4 @@ app.include_router(skill_router.router, prefix="/skill")
 app.include_router(link_router.router, prefix="/link")
 app.include_router(event_router.router, prefix="/event")
 app.include_router(subscription_router.router, prefix="/subscription")
+app.include_router(role_router.router, prefix="/role")

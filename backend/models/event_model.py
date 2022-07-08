@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Union
 from pydantic import BaseModel
 
-from models.short_response_user_model import ShortResponseUserModel
+from models.short_user_model_response import ShortUserModelResponse
 from consts.name_format_event import ONLINE
 
 
@@ -26,4 +26,4 @@ class EventModelInput(BaseModel):
 
 class EventModelInDB(EventModelInput):
     key: Union[str, None]
-    author: ShortResponseUserModel
+    author: ShortUserModelResponse
