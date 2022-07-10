@@ -1,12 +1,15 @@
 from typing import List, Union
 from pydantic import BaseModel
+from datetime import datetime
 
+from handlers.datetime_handler import DatetimeHandler
 from models.link_model import LinkModel
 from models.role_model import RoleModelResponse
 from models.short_user_model_response import ShortUserModelResponse
-from models.skill_model import SkillModelInDB
+from models.skill_model import SkillInDBModel
 from models.subscription_model import SubscriptionModel
 
+datetime_handler = DatetimeHandler()
 
 class AuthModel(BaseModel):
     email: str
@@ -40,20 +43,20 @@ class SignupModel(BaseModel):
         }
 
 
-class UserModelInDB(BaseModel):
+class UserInDBModel(BaseModel):
     username: str
     firstname: str
     lastname: str
     key: Union[str, None]
-    url_photo: Union[str, None]
+    url: Union[str, None]
 
     place_residence: Union[str, None]
     email: str
-    age: Union[int, None]
+    birth_date: Union[int, None]
     followers: List[ShortUserModelResponse]
     links: List[LinkModel]
     role: Union[RoleModelResponse, None]
-    skills: List[SkillModelInDB]
+    skills: List[SkillInDBModel]
 
     subscriptions: List[SubscriptionModel]
     role_key: Union[str, None]
@@ -63,27 +66,21 @@ class UserModelInDB(BaseModel):
 class UserModelResponse(ShortUserModelResponse):
     place_residence: Union[str, None]
     email: str
-    age: Union[int, None]
+    birth_date: Union[int, None]
     followers: List[ShortUserModelResponse]
     links: List[LinkModel]
     role: Union[RoleModelResponse, None]
-    skills: List[SkillModelInDB]
+    skills: List[SkillInDBModel]
 
 
-class UserUpdateDataModel(BaseModel):
-    password: str
-    lastname: str
-    firstname: str
-    age: Union[int, None]
+class UserAdditionalDataModel(BaseModel):
+    birth_date: Union[int, None]
     place_residence: Union[str, None]
 
     class Config:
         schema_extra = {
             "example": {
-                "password": "secret",
-                "lastname": "Иванов",
-                "firstname": "Иван",
-                "age": 20,
+                "birth_date": datetime_handler.convert_to_int(datetime(1999, 9, 24)),
                 "place_residence": "Нижний Новгород",
             }
         }

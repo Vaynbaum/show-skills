@@ -11,8 +11,8 @@ class AbstractDriveHandler(ABC):
         name_file: str,
         name_directory: str,
         file: UploadFile,
-        size_height: int,
-        size_width: int,
+        size_height: int = None,
+        size_width: int = None,
     ) -> str:
         """Загружает фотографию на диск"""
         pass
@@ -23,3 +23,8 @@ class AbstractDriveHandler(ABC):
     ) -> Union[StreamingResponse, None]:
         """Получение фотографии по имени и директории"""
         pass
+
+    @abstractmethod
+    def join_file_name(self, file: UploadFile, name_file: str) -> str:
+        pass
+

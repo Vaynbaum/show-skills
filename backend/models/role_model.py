@@ -5,9 +5,9 @@ from pydantic import BaseModel
 class RoleModelResponse(BaseModel):
     name_ru: str
     name_en: str
-    name_icon: Union[str, None]
+    url: Union[str, None]
 
 
-class RoleModelInDB(RoleModelResponse):
+class RoleInDBModel(RoleModelResponse):
     can_assign: bool
     key: Union[str, None]

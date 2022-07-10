@@ -1,28 +1,28 @@
 from typing import Union
 from deta import Deta
-from exceptions.update_item_exception import UpdateItemException
 
+from exceptions.update_item_exception import UpdateItemException
 from models.response_items import ResponseItems
-from models.user_model import UserModelInDB, UserModelResponse
+from models.user_model import UserInDBModel, UserModelResponse
 
 
 class UserDatabaseHandler:
     def __init__(self, deta: Deta):
         self.__users_db = deta.AsyncBase("users")
 
-    async def get_one_by_query(self, query: dict = None) -> Union[UserModelInDB, None]:
+    async def get_one_by_query(self, query: dict = None) -> Union[UserInDBModel, None]:
         """Get one user by different criteria from the database
 
         Args:
             query (dict, optional): Choosing criteria. Defaults to None.
 
         Returns:
-            Union[UserModelInDB, None]: If a user is found, then returns UserModelInDB otherwise None
+            Union[UserInDBModel, None]: If a user is found, then returns UserInDBModel otherwise None
         """
         res_fetch = await self.__users_db.fetch(query, limit=1)
         if res_fetch.count > 0:
             user_dict = res_fetch.items[0]
-            return UserModelInDB(**user_dict)
+            return UserInDBModel(**user_dict)
         else:
             return None
 
@@ -39,37 +39,38 @@ class UserDatabaseHandler:
         Returns:
             ResponseItems[UserModelResponse]: Query result
         """
-        result = await self.__users_db.fetch(query, limit, last_user_key)
+        print(query, limit, last_user_key)
+        result = await self.__users_db.fetch(query, limit=limit, last=last_user_key)
         return ResponseItems[UserModelResponse](
             count=result.count, last=result.last, items=result.items
         )
 
-    async def create(self, user: UserModelInDB) -> Union[UserModelInDB, None]:
+    async def create(self, user: UserInDBModel) -> Union[UserInDBModel, None]:
         """Adding a new user to the database
 
         Args:
-            user (UserModelInDB): New user model
+            user (UserInDBModel): New user model
 
         Returns:
-            Union[UserModelInDB, None]: The model of the user added to the database otherwise None
+            Union[UserInDBModel, None]: The model of the user added to the database otherwise None
         """
         try:
             user = await self.__users_db.put(user.dict())
-            return UserModelInDB(**user)
+            return UserInDBModel(**user)
         except:
             return None
 
-    async def get_by_key(self, key: str) -> Union[UserModelInDB, None]:
+    async def get_by_key(self, key: str) -> Union[UserInDBModel, None]:
         """Get a user by key from the database
 
         Args:
             key (str): The user's key in the database
 
         Returns:
-            Union[UserModelInDB, None]: If a user is found, then returns UserModelInDB otherwise None
+            Union[UserInDBModel, None]: If a user is found, then returns UserInDBModel otherwise None
         """
         user = await self.__users_db.get(key)
-        return UserModelInDB(**user) if user is not None else None
+        return UserInDBModel(**user) if user is not None else None
 
     async def delete_by_key(self, key: str) -> None:
         """Delete a user from the database by key
@@ -127,6 +128,7 @@ class UserDatabaseHandler:
         Returns:
             None: Returns nothing
         """
+        print(skills)
         try:
             return await self.__users_db.update(
                 {"skills": self.__users_db.util.append(skills)}, key

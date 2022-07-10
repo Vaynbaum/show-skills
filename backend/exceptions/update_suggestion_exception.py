@@ -1,4 +1,4 @@
-class UpdateUserDataException(Exception):
+class UpdateSuggestionException(Exception):
     def __init__(self,message):
         message = message
     

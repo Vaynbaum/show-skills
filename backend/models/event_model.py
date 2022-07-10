@@ -1,13 +1,14 @@
-from calendar import timegm
-from datetime import datetime
 from typing import Union
 from pydantic import BaseModel
+from handlers.datetime_handler import DatetimeHandler
 
 from models.short_user_model_response import ShortUserModelResponse
 from consts.name_format_event import ONLINE
 
+datetime_handler = DatetimeHandler()
 
-class EventModelInput(BaseModel):
+
+class EventInputModel(BaseModel):
     name: str
     date: int
     format_event: Union[str, dict]
@@ -17,13 +18,13 @@ class EventModelInput(BaseModel):
         schema_extra = {
             "example": {
                 "name": "Вебинар по Angular",
-                "date": timegm((datetime(2022, 7, 10, 11)).timetuple()),
+                "date": datetime_handler.now_next_days(2),
                 "format_event": ONLINE,
                 "place": {"name_platform": "VK", "URL": "https://example"},
             }
         }
 
 
-class EventModelInDB(EventModelInput):
+class EventInDBModel(EventInputModel):
     key: Union[str, None]
     author: ShortUserModelResponse

@@ -7,7 +7,7 @@ from controllers.skill_controller import SkillController
 from db.abstract_database_handler import AbstractDatabaseHandler
 from db.database_handler import DatabaseHandler
 from models.response_items import ResponseItems
-from models.skill_model import SkillCreateDataModel, SkillModelInDB
+from models.skill_model import SkillCreateDataModel, SkillInDBModel
 from drive.abstract_drive_handler import AbstractDriveHandler
 from drive.drive_handler import DriveHandler
 from handlers.access_handler import AccessHandler, RoleAccessModel
@@ -38,7 +38,7 @@ async def create(
     return await inside_func(skill)
 
 
-@router.post("/upload-icon/", responses={200: {"model": str}})
+@router.post("/upload_icon/", responses={200: {"model": str}})
 async def upload_icon_skill(
     file: UploadFile,
     name: str = Query(example="Python"),
@@ -59,37 +59,36 @@ async def get_icon_by_name_file(name_file: str = Path(example="python.png")):
     return skill_controller.get_icon_by_name_file(name_file)
 
 
-@router.get("/all", responses={200: {"model": ResponseItems[SkillModelInDB]}})
-async def get_all_skills(
-    limit: Union[int, None] = 100, last_user_key: Union[str, None] = None
-):
+@router.get("/all", responses={200: {"model": ResponseItems[SkillInDBModel]}})
+async def get_all_skills(limit: int = 100, last_user_key: str = None):
     return await skill_controller.get_skill_all(limit, last_user_key)
 
 
 @router.post("/add/to_myself")
 async def add_skill_to_myself(
-    key_skill: str,
+    skill_key: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
     @access_handler.maker_role_access(
         credentials.credentials,
         [RoleAccessModel(name=USER)],
     )
-    async def inside_func(key_skill, token):
-        return await skill_controller.add_skill(key_skill, token)
+    async def inside_func(skill_key, token):
+        return await skill_controller.add_skill(skill_key, token)
 
-    return await inside_func(key_skill, credentials.credentials)
+    return await inside_func(skill_key, credentials.credentials)
+
 
 @router.delete("/remove/at_yorself")
 async def add_skill_to_myself(
-    key_skill: str,
+    skill_key: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
     @access_handler.maker_role_access(
         credentials.credentials,
         [RoleAccessModel(name=USER)],
     )
-    async def inside_func(key_skill, token):
-        return await skill_controller.remove_skill(key_skill, token)
+    async def inside_func(skill_key, token):
+        return await skill_controller.remove_skill(skill_key, token)
 
-    return await inside_func(key_skill, credentials.credentials)
+    return await inside_func(skill_key, credentials.credentials)

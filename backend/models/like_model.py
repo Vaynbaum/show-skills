@@ -1,8 +1,7 @@
-from typing import Union
 from pydantic import BaseModel
+
+from models.short_user_model_response import ShortUserModelResponse
 
 
 class LikeModel(BaseModel):
-    key: Union[str, None]
-    user_key: str
-    post_key: str
+    user: ShortUserModelResponse

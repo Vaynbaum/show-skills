@@ -4,3 +4,12 @@
 </ckeditor>
 
 <div [innerHTML]="ckeditorContent"></div>
+<button (click)="unload()">Отправить</button>
+<input
+        id="file-input"
+        class="recordIdea-form--group---file"
+        type="file"
+        (change)="fileChange($event)"
+        accept=".jpg, .jpeg, .png, .gif, .bmp"
+      />
+<button (click)='display()'>Показать</button>

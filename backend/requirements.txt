@@ -6,6 +6,5 @@ passlib[bcrypt]
 transliterate
 Pillow
 python-multipart
-# pyparsing
 python-dotenv
 email-validator

@@ -2,18 +2,18 @@ from pydantic import BaseModel
 
 from consts.name_attribute_access_roles import NAME_ATTR_OWNER, NAME_ATTR_TO_ASSIGN
 from consts.owner_enum import OwnerEnum
-from models.user_model import UserModelInDB
+from models.user_model import UserInDBModel
 
 
 class RoleAccessModel(BaseModel):
     name: str
     attributes: dict = None
 
-    def check_to_user(self, user: UserModelInDB) -> bool:
+    def check_to_user(self, user: UserInDBModel) -> bool:
         """Checking the possibility of assignment
 
         Args:
-            user (UserModelInDB): user model
+            user (UserInDBModel): user model
 
         Returns:
             bool: True if allowed and False otherwise
@@ -27,11 +27,11 @@ class RoleAccessModel(BaseModel):
         else:
             return True
 
-    def check_owner_access(self, user: UserModelInDB, key: str = None) -> bool:
+    def check_owner_access(self, user: UserInDBModel, key: str = None) -> bool:
         """Checking the possibility of an action on an object
 
         Args:
-            user (UserModelInDB): user model
+            user (UserInDBModel): user model
             key (str, optional): user's key. Defaults to None.
 
         Returns:

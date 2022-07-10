@@ -8,4 +8,4 @@ class ShortUserModelResponse(BaseModel):
     firstname: str
     lastname: str
     key: Union[str, None]
-    url_photo: Union[str, None]
+    url: Union[str, None]

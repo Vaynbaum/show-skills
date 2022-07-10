@@ -8,7 +8,7 @@ from controllers.event_controller import EventController
 from db.abstract_database_handler import AbstractDatabaseHandler
 from db.database_handler import DatabaseHandler
 from handlers.access_handler import AccessHandler
-from models.event_model import EventModelInput
+from models.event_model import EventInputModel
 from models.role_access_model import RoleAccessModel
 from consts.name_roles import ADMIN, SUPER_ADMIN, USER
 
@@ -21,7 +21,7 @@ router = APIRouter(tags=["Event"])
 
 @router.post("/create")
 async def create_event(
-    event: EventModelInput,
+    event: EventInputModel,
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
     @access_handler.maker_role_access(
@@ -36,7 +36,7 @@ async def create_event(
 @router.get("/all")
 async def get_all_events(
     credentials: HTTPAuthorizationCredentials = Security(security),
-    limit: int = None,
+    limit: int = 1000,
     last_event_key: str = None,
 ):
     @access_handler.maker_role_access(
@@ -52,7 +52,7 @@ async def get_all_events(
 @router.get("/subscription")
 async def get_events_by_subscription(
     next_days: int = None,
-    limit: int = None,
+    limit: int = 1000,
     last_event_key: str = None,
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
@@ -60,18 +60,18 @@ async def get_events_by_subscription(
         credentials.credentials,
         [RoleAccessModel(name=USER)],
     )
-    async def inside_func(next_days, token, limit, last_event_key):
+    async def inside_func(token, limit, last_event_key, next_days):
         return await event_controller.get_events_by_subscription(
-            next_days, token, limit, last_event_key
+            token, limit, last_event_key, next_days
         )
 
-    return await inside_func(next_days, credentials.credentials, limit, last_event_key)
+    return await inside_func(credentials.credentials, limit, last_event_key, next_days)
 
 
 @router.get("/user")
 async def get_events_by_user(
     key: str,
-    limit: int = None,
+    limit: int = 1000,
     last_event_key: str = None,
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
@@ -105,7 +105,7 @@ async def delete_event(
         False,
     )
     @access_handler.maker_owner_access(
-        await event_controller.get_key_author_by_event_key(key),
+        await event_controller.get_author_key_by_event_key(key),
     )
     async def inside_func(key):
         return await event_controller.delete_event(key)
@@ -116,7 +116,7 @@ async def delete_event(
 @router.put("/edit")
 async def edit_event(
     event_key: str,
-    event: EventModelInput,
+    event: EventInputModel,
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
     @access_handler.maker_role_access(
@@ -127,7 +127,7 @@ async def edit_event(
         False,
     )
     @access_handler.maker_owner_access(
-        await event_controller.get_key_author_by_event_key(event_key),
+        await event_controller.get_author_key_by_event_key(event_key),
     )
     async def inside_func(event, event_key):
         return await event_controller.update_event(event, event_key)

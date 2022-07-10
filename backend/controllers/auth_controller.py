@@ -7,7 +7,7 @@ from handlers.password_handler import PasswordHandler
 from models.message_model import MessageModel
 from models.role_model import RoleModelResponse
 from models.token_model import AccessTokenModel, PairTokenModel
-from models.user_model import AuthModel, SignupModel, UserModelInDB
+from models.user_model import AuthModel, SignupModel, UserInDBModel
 
 
 class AuthController:
@@ -33,7 +33,7 @@ class AuthController:
             )
             role = await self.__database_controller.get_role_by_name_en(USER)
 
-            user = UserModelInDB(
+            user = UserInDBModel(
                 email=user_details.email,
                 username=user_details.username,
                 password=hashed_password,

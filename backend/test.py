@@ -2,16 +2,16 @@ import os
 from deta import Deta
 from dotenv import load_dotenv
 
-load_dotenv()
-db = Deta(os.getenv("DETA_PROJECT_KEY")).Base("messages")
-db.put(
-    {
-        "title": "Добавить навык",
-        "content": "Кулинария, приготовление салатов",
-        "read": False,
-        "completed": False,
-    }
-)
+# load_dotenv()
+# db = Deta(os.getenv("DETA_PROJECT_KEY")).Base("messages")
+# db.put(
+#     {
+#         "title": "Добавить навык",
+#         "content": "Кулинария, приготовление салатов",
+#         "read": False,
+#         "completed": False,
+#     }
+# )
 # db.put_many(
 #     [
 #         {
