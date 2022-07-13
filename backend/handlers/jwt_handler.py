@@ -1,10 +1,11 @@
 import os
 from dotenv import load_dotenv
 import jwt
-from fastapi import HTTPException
 from datetime import datetime, timedelta
 
 from consts.name_tokens import ACCESS_TOKEN, REFRESH_TOKEN
+from exceptions.decode_token_exception import DecodeTokenException
+from exceptions.refresh_token_exception import RefreshTokenException
 
 
 class JWTHandler:
@@ -56,7 +57,7 @@ class JWTHandler:
             token (str)
 
         Raises:
-            HTTPException: If the token is invalid, expired or scope is invalid
+            DecodeTokenException: If the token is invalid, expired or scope is invalid
 
         Returns:
             str: Information stored in subject
@@ -65,13 +66,13 @@ class JWTHandler:
             payload = jwt.decode(token, self.__secret, algorithms=[self.__algorithm])
             if payload["scope"] == ACCESS_TOKEN:
                 return payload["sub"]
-            raise HTTPException(
-                status_code=401, detail="Scope for the token is invalid"
+            raise DecodeTokenException(
+                message="Scope for the token is invalid"
             )
         except jwt.ExpiredSignatureError:
-            raise HTTPException(status_code=401, detail="Token expired")
+            raise DecodeTokenException(message="Token expired")
         except jwt.InvalidTokenError:
-            raise HTTPException(status_code=401, detail="Invalid token")
+            raise DecodeTokenException(message="Invalid token")
 
     def encode_refresh_token(self, key: str) -> str:
         """Generating refresh token
@@ -93,7 +94,7 @@ class JWTHandler:
             refresh_token (str)
 
         Raises:
-            HTTPException: If the refresh token is invalid, expired or scope is invalid
+            RefreshTokenException: If the refresh token is invalid, expired or scope is invalid
         Returns:
             str: new access token
         """
@@ -105,8 +106,8 @@ class JWTHandler:
                 data = payload["sub"]
                 new_token = self.encode_token(data)
                 return new_token
-            raise HTTPException(status_code=401, detail="Invalid scope for token")
+            raise RefreshTokenException(message="Invalid scope for token")
         except jwt.ExpiredSignatureError:
-            raise HTTPException(status_code=401, detail="Refresh token expired")
+            raise RefreshTokenException(message="Refresh token expired")
         except jwt.InvalidTokenError:
-            raise HTTPException(status_code=401, detail="Invalid refresh token")
+            raise RefreshTokenException(message="Invalid refresh token")

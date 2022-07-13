@@ -5,21 +5,46 @@ from fastapi import Security
 from consts.name_attribute_access_roles import NAME_ATTR_OWNER
 from consts.owner_enum import OwnerEnum
 from controllers.event_controller import EventController
-from db.abstract_database_handler import AbstractDatabaseHandler
 from db.database_handler import DatabaseHandler
 from handlers.access_handler import AccessHandler
-from models.event_model import EventInputModel
+from models.event_model import EventInDBModel, EventInputModel
+from models.http_error import HTTPError
+from models.message_model import MessageModel
+from models.response_items import ResponseItems
 from models.role_access_model import RoleAccessModel
 from consts.name_roles import ADMIN, SUPER_ADMIN, USER
 
 security = HTTPBearer()
-database_handler: AbstractDatabaseHandler = DatabaseHandler()
+database_handler = DatabaseHandler()
 access_handler = AccessHandler(database_handler)
 event_controller = EventController(database_handler)
 router = APIRouter(tags=["Event"])
 
 
-@router.post("/create")
+@router.post(
+    "/create",
+    responses={
+        200: {"model": EventInDBModel},
+        400: {
+            "model": HTTPError,
+            "description": "If the user key is invalid or the event already exists",
+        },
+        401: {
+            "model": HTTPError,
+            "description": "If the token is invalid, expired or scope is invalid",
+        },
+        403: {
+            "model": HTTPError,
+            "description": """If authentication failed, invalid authentication credentials 
+            or no access rights to this method""",
+        },
+        500: {
+            "model": HTTPError,
+            "description": "If an error occurred while verifying access",
+        },
+    },
+    summary="Adding a new event to the database",
+)
 async def create_event(
     event: EventInputModel,
     credentials: HTTPAuthorizationCredentials = Security(security),
@@ -33,7 +58,30 @@ async def create_event(
     return await inside_func(event, credentials.credentials)
 
 
-@router.get("/all")
+@router.get(
+    "/all",
+    responses={
+        200: {"model": ResponseItems[EventInDBModel]},
+        400: {
+            "model": HTTPError,
+            "description": "If the user key is invalid",
+        },
+        401: {
+            "model": HTTPError,
+            "description": "If the token is invalid, expired or scope is invalid",
+        },
+        403: {
+            "model": HTTPError,
+            "description": """If authentication failed, invalid authentication credentials 
+            or no access rights to this method""",
+        },
+        500: {
+            "model": HTTPError,
+            "description": "If an error occurred while verifying access",
+        },
+    },
+    summary="Getting all events from the database",
+)
 async def get_all_events(
     credentials: HTTPAuthorizationCredentials = Security(security),
     limit: int = 1000,
@@ -49,7 +97,30 @@ async def get_all_events(
     return await inside_func(limit, last_event_key)
 
 
-@router.get("/subscription")
+@router.get(
+    "/subscription",
+    responses={
+        200: {"model": ResponseItems[EventInDBModel]},
+        400: {
+            "model": HTTPError,
+            "description": "If the user key is invalid",
+        },
+        401: {
+            "model": HTTPError,
+            "description": "If the token is invalid, expired or scope is invalid",
+        },
+        403: {
+            "model": HTTPError,
+            "description": """If authentication failed, invalid authentication credentials 
+            or no access rights to this method""",
+        },
+        500: {
+            "model": HTTPError,
+            "description": "If an error occurred while verifying access",
+        },
+    },
+    summary="Getting events by subscriptions",
+)
 async def get_events_by_subscription(
     next_days: int = None,
     limit: int = 1000,
@@ -68,7 +139,30 @@ async def get_events_by_subscription(
     return await inside_func(credentials.credentials, limit, last_event_key, next_days)
 
 
-@router.get("/user")
+@router.get(
+    "/user",
+    responses={
+        200: {"model": ResponseItems[EventInDBModel]},
+        400: {
+            "model": HTTPError,
+            "description": "If the user key is invalid",
+        },
+        401: {
+            "model": HTTPError,
+            "description": "If the token is invalid, expired or scope is invalid",
+        },
+        403: {
+            "model": HTTPError,
+            "description": """If authentication failed, invalid authentication credentials 
+            or no access rights to this method""",
+        },
+        500: {
+            "model": HTTPError,
+            "description": "If an error occurred while verifying access",
+        },
+    },
+    summary="Getting user events",
+)
 async def get_events_by_user(
     key: str,
     limit: int = 1000,
@@ -89,7 +183,34 @@ async def get_events_by_user(
     return await inside_func(key, limit, last_event_key)
 
 
-@router.delete("/delete")
+@router.delete(
+    "/delete",
+    responses={
+        200: {"model": MessageModel},
+        400: {
+            "model": HTTPError,
+            "description": "If the user key is invalid",
+        },
+        401: {
+            "model": HTTPError,
+            "description": "If the token is invalid, expired or scope is invalid",
+        },
+        403: {
+            "model": HTTPError,
+            "description": """If authentication failed, invalid authentication credentials 
+            or no access rights to this method""",
+        },
+        404: {
+            "model": HTTPError,
+            "description": "If the event is not found",
+        },
+        500: {
+            "model": HTTPError,
+            "description": "If an error occurred while verifying access",
+        },
+    },
+    summary="Delete a event from the database by key",
+)
 async def delete_event(
     key: str, credentials: HTTPAuthorizationCredentials = Security(security)
 ):
@@ -113,7 +234,34 @@ async def delete_event(
     return await inside_func(key)
 
 
-@router.put("/edit")
+@router.put(
+    "/edit",
+    responses={
+        200: {"model": MessageModel},
+        400: {
+            "model": HTTPError,
+            "description": "If the user key is invalid or the event data failed to update",
+        },
+        401: {
+            "model": HTTPError,
+            "description": "If the token is invalid, expired or scope is invalid",
+        },
+        403: {
+            "model": HTTPError,
+            "description": """If authentication failed, invalid authentication credentials 
+            or no access rights to this method""",
+        },
+        404: {
+            "model": HTTPError,
+            "description": "If the event is not found",
+        },
+        500: {
+            "model": HTTPError,
+            "description": "If an error occurred while verifying access",
+        },
+    },
+    summary="Delete a event from the database by key",
+)
 async def edit_event(
     event_key: str,
     event: EventInputModel,

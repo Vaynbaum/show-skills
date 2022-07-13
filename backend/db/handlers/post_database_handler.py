@@ -4,7 +4,7 @@ from deta import Deta
 from exceptions.update_item_exception import UpdateItemException
 from models.comment_model import CommentModel
 from models.like_model import LikeModel
-from models.post_model import PostInDBModel, PostInputModel
+from models.post_model import PostInDBModel
 from models.response_items import ResponseItems
 
 
@@ -19,7 +19,8 @@ class PostDatabaseHandler:
             post (PostInDBModel): New post model
 
         Returns:
-            Union[PostInDBModel, None]: The model of the post added to the database otherwise None
+            Union[PostInDBModel, None]: The model of the post added
+            to the database otherwise None
         """
         try:
             post = await self.__posts_db.put(post.dict())
@@ -28,15 +29,14 @@ class PostDatabaseHandler:
             return None
 
     async def get_many_by_query(
-        self, query: dict = None, limit: int = 1000, last_post_key: str = None
+        self, limit: int, last_post_key: str, query: dict = None
     ) -> ResponseItems[PostInDBModel]:
         """Get posts by different criteria from the database
 
         Args:
-            query (dict, optional): Choosing criteria. Defaults to None.
-            limit (int, optional): Limit of posts received. Defaults to 1000.
-            last_post_key (str, optional): The last post key received in the previous request.
-            Defaults to None.
+            limit (int): Limit of posts received
+            last_post_key (str): The last post key received in the previous request
+            query (dict, optional): Choosing criteria. Defaults to None
 
         Returns:
             ResponseItems[PostInDBModel]: Query result
@@ -47,10 +47,27 @@ class PostDatabaseHandler:
         )
 
     async def get_by_key(self, key: str) -> Union[PostInDBModel, None]:
+        """Get a post by key from the database
+
+        Args:
+            key (str): The post key in the database
+
+        Returns:
+            Union[PostInDBModel, None]: If a post is found,
+            then returns PostInDBModel otherwise None
+        """
         post = await self.__posts_db.get(key)
         return PostInDBModel(**post) if post is not None else None
 
     async def delete_by_key(self, key: str) -> None:
+        """Delete a post from the database by key
+
+        Args:
+            key (str): The post key in the database
+
+        Returns:
+            None: Returns nothing
+        """
         return await self.__posts_db.delete(key)
 
     async def update(self, post: dict, key: str) -> None:
@@ -69,7 +86,7 @@ class PostDatabaseHandler:
         try:
             return await self.__posts_db.update(post, key)
         except BaseException as e:
-            print(e)
+            
             raise UpdateItemException("Updating data was not successful")
 
     async def append_like(self, like: LikeModel, post_key: str) -> None:
@@ -90,14 +107,14 @@ class PostDatabaseHandler:
                 {"likes": self.__posts_db.util.append(like.dict())}, post_key
             )
         except BaseException as e:
-            print(e)
+            
             raise UpdateItemException("Updating data was not successful")
 
     async def append_comment(self, comment: CommentModel, post_key: str) -> None:
         """Add comment to post
 
         Args:
-            comment (CommentModel): like model
+            comment (CommentModel): comment model
             post_key (str): post key in the database
 
         Raises:
@@ -111,5 +128,5 @@ class PostDatabaseHandler:
                 {"comments": self.__posts_db.util.append(comment.dict())}, post_key
             )
         except BaseException as e:
-            print(e)
+            
             raise UpdateItemException("Updating data was not successful")

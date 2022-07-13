@@ -2,15 +2,15 @@ from typing import Union
 from fastapi import HTTPException
 from controllers.user_controller import UserController
 
-from db.abstract_database_handler import AbstractDatabaseHandler
-from exceptions.no_roles_access_handler import NoRolesAccessHandler
-from exceptions.no_token_access_handler import NoTokenAccessHandler
+from db.database_handler import DatabaseHandler
+from exceptions.no_roles_access_exception import NoRolesAccessException
+from exceptions.no_token_access_exception import NoTokenAccessException
 from models.user_model import UserInDBModel
 from models.role_access_model import RoleAccessModel
 
 
 class AccessHandler:
-    def __init__(self, database_controller: AbstractDatabaseHandler):
+    def __init__(self, database_controller: DatabaseHandler):
         self.__user_controller = UserController(database_controller)
         self.__database_controller = database_controller
 
@@ -55,16 +55,16 @@ class AccessHandler:
         return kwargs
 
     async def __find_user(
-        self, kwargs: dict, token: str = None
+        self, kwargs: dict, token: Union[str, None]
     ) -> tuple[UserInDBModel, dict]:
         """Get a user
 
         Args:
             kwargs (dict)
-            token (str, optional): user's token. Defaults to None.
+            token (Union[str, None]): user's token
 
         Raises:
-            NoTokenAccessHandler: If it was not possible to find get a user
+            NoTokenAccessException: If it was not possible to find get a user
 
         Returns:
             tuple[UserInDBModel, dict]: user model and kwargs
@@ -75,18 +75,21 @@ class AccessHandler:
             user = await self.__user_controller.get_user_by_token(token)
             kwargs["user"] = user
         else:
-            raise NoTokenAccessHandler("Failed to get the user")
+            raise NoTokenAccessException("Failed to get the user")
         return user, kwargs
 
     def __find_role(
-        self, kwargs: dict, user: UserInDBModel, roles: list[RoleAccessModel] = None
+        self,
+        kwargs: dict,
+        user: UserInDBModel,
+        roles: Union[list[RoleAccessModel], None],
     ) -> tuple[RoleAccessModel, dict]:
         """Get a role
 
         Args:
             kwargs (dict)
             user (UserInDBModel): user's database model
-            roles (list[RoleAccessModel], optional): role list. Defaults to None.
+            roles (Union[list[RoleAccessModel], None]): role list
 
         Raises:
             NotRolesAccessHandler: If there is no list of roles
@@ -100,18 +103,21 @@ class AccessHandler:
             role = self.__find_access_role(roles, user)
             kwargs["role"] = role
         else:
-            raise NoRolesAccessHandler("There is no list of roles")
+            raise NoRolesAccessException("There is no list of roles")
         return role, kwargs
 
     async def __get_role_user_access(
-        self, kwargs: dict, token: str = None, roles: list[RoleAccessModel] = None
+        self,
+        kwargs: dict,
+        token: Union[str, None],
+        roles: Union[list[RoleAccessModel], None],
     ) -> tuple[dict, UserInDBModel, RoleAccessModel]:
         """Get role and user
 
         Args:
             kwargs (dict)
-            token (str, optional): user's token. Defaults to None.
-            roles (list[RoleAccessModel], optional): role list. Defaults to None.
+            token (Union[str, None]): user's token
+            roles (Union[list[RoleAccessModel], None]): role list
 
         Raises:
             HTTPException: If an error occurred while verifying access
@@ -121,8 +127,8 @@ class AccessHandler:
         """
         try:
             user, kwargs = await self.__find_user(kwargs, token)
-        except NoTokenAccessHandler as e:
-            print(e)
+        except NoTokenAccessException as e:
+            
             raise HTTPException(
                 status_code=500,
                 detail="An error occurred while verifying access",
@@ -130,8 +136,8 @@ class AccessHandler:
 
         try:
             role, kwargs = self.__find_role(kwargs, user, roles)
-        except NoRolesAccessHandler as e:
-            print(e)
+        except NoRolesAccessException as e:
+            
             raise HTTPException(
                 status_code=500,
                 detail="An error occurred while verifying access",
@@ -153,13 +159,8 @@ class AccessHandler:
                     kwargs, token, roles
                 )
                 # If the role is found, then call method
-                if role is not None:
-                    kwargs = self.__clean_temp_vars(is_lact_decorator, kwargs)
-                    return await func(*args, **kwargs)
-                else:
-                    raise HTTPException(
-                        status_code=403, detail="There is no access to this method"
-                    )
+                kwargs = self.__clean_temp_vars(is_lact_decorator, kwargs)
+                return await func(*args, **kwargs)
 
             return wrapped_role_access
 
@@ -208,7 +209,7 @@ class AccessHandler:
                 )
                 to_user = await self.__database_controller.get_user_by_key(to_user_key)
                 if to_user is None:
-                    raise HTTPException(status_code=400, detail="User not found")
+                    raise HTTPException(status_code=404, detail="User not found")
                 # If the user role allows you to assign a user, then call the method
                 if role.check_to_user(to_user):
                     kwargs = self.__clean_temp_vars(is_lact_decorator, kwargs)

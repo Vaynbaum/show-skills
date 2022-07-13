@@ -8,6 +8,14 @@ class CommentInputModel(BaseModel):
     text: str
     name: str
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "text": "Автор прекрасно объяснил данный материал",
+                "name": "Прекрасная статья",
+            }
+        }
+
 
 class CommentModel(CommentInputModel):
     author: ShortUserModelResponse

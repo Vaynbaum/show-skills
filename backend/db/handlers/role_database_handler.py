@@ -49,7 +49,6 @@ class RoleDatabaseHandler:
             ResponseItems[RoleInDBModel]: Query result
         """
         roles = await self.__roles_db.fetch(query)
-        print(roles)
         return ResponseItems[RoleInDBModel](
             count=roles.count, last=roles.last, items=roles.items
         )

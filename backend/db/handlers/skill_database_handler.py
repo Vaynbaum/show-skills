@@ -16,7 +16,8 @@ class SkillDatabaseHandler:
             skill (SkillCreateDataModel): New skill model
 
         Returns:
-            Union[SkillInDBModel, None]: The model of the skill added to the database otherwise None
+            Union[SkillInDBModel, None]: The model of the skill added
+            to the database otherwise None
         """
         try:
             skill = await self.__skills_db.put(skill.dict())
@@ -25,15 +26,14 @@ class SkillDatabaseHandler:
             return None
 
     async def get_many_by_query(
-        self, query: dict = None, limit: int = 1000, last_skill_key: str = None
+        self, limit: int, last_skill_key: str, query: dict = None
     ) -> ResponseItems[SkillInDBModel]:
         """Get skills by different criteria from the database
 
         Args:
+            limit (int): Limit of skills received
+            last_skill_key (str): The last skill key received in the previous request
             query (dict, optional): Choosing criteria. Defaults to None.
-            limit (int, optional): Limit of skills received. Defaults to 1000.
-            last_skill_key (str, optional): The last skill key received in the previous request.
-            Defaults to None.
 
         Returns:
             ResponseItems[SkillInDBModel]: Query result

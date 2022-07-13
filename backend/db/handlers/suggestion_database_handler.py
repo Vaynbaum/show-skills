@@ -36,7 +36,7 @@ class SuggetionDatabaseHandler:
         Args:
             query (dict): Choosing criteria
             limit (int): Limit of suggestions received
-            last_skill_key (str): The last suggestion key received in the previous request
+            last_key (str): The last suggestion key received in the previous request
 
         Returns:
             ResponseItems[SuggestionInDBModel]: Query result
@@ -51,7 +51,7 @@ class SuggetionDatabaseHandler:
 
         Args:
             suggestion (dict): suggestion data
-            key (str): The suggestion key in the database
+            suggestion_key (str): The suggestion key in the database
 
         Raises:
             UpdateItemException: If data update was not successful
@@ -62,5 +62,5 @@ class SuggetionDatabaseHandler:
         try:
             return await self.__suggestions_db.update(suggestion, suggestion_key)
         except BaseException as e:
-            print(e)
+            
             raise UpdateItemException("Updating data was not successful")

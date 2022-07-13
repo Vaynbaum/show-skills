@@ -14,16 +14,15 @@ class EventDatabaseHandler:
         self.__datetime_handler = DatetimeHandler()
 
     async def get_many_by_query(
-        self, query: dict = None, limit: int = 1000, last_event_key: str = None
+        self, limit: int, last_event_key: str, query: dict = None
     ) -> ResponseItems[EventInDBModel]:
         """Get events by different criteria from the database
 
         Args:
-            query (dict, optional): Choosing criteria. Defaults to None.
-            limit (int, optional): Limit of events received. Defaults to 1000.
-            last_event_key (str, optional): The last event key received in the previous request.
-            Defaults to None.
-
+            limit (int): Limit of events received
+            last_event_key (str): The last event key received in the previous request
+            query (dict, optional): Choosing criteria. Defaults to None
+            
         Returns:
             ResponseItems[EventInDBModel]: Query result
         """
@@ -39,7 +38,8 @@ class EventDatabaseHandler:
             event (EventInDBModel): New event model
 
         Returns:
-            Union[EventInDBModel, None]: The model of the event added to the database otherwise None
+            Union[EventInDBModel, None]: The model of the event added
+            to the database otherwise None
         """
         try:
             event = await self.__event_db.put(
@@ -80,7 +80,7 @@ class EventDatabaseHandler:
         """Updating of event data
 
         Args:
-            event (EventInputModel): event data
+            event (EventInputModel): Event data
             key (str): The event key in the database
 
         Raises:
@@ -99,8 +99,16 @@ class EventDatabaseHandler:
                 expire_at=expire,
             )
         except BaseException as e:
-            print(e)
+            
             raise UpdateItemException("Updating data was not successful")
 
-    async def delete_after_user(self, keys: list[dict]):
-        return await self.__event_db.put_many(keys, expire_in=5)
+    async def delete_after_user(self, keys: list[dict]) -> dict:
+        """Deleting events by keys
+
+        Args:
+            keys (list[dict]): List of event keys
+
+        Returns:
+            dict: Returns a dict with processed and failed(if any) items
+        """
+        return await self.__event_db.put_many(keys, expire_in=3)

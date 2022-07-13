@@ -17,7 +17,8 @@ class UserDatabaseHandler:
             query (dict, optional): Choosing criteria. Defaults to None.
 
         Returns:
-            Union[UserInDBModel, None]: If a user is found, then returns UserInDBModel otherwise None
+            Union[UserInDBModel, None]: If a user is found, 
+            then returns UserInDBModel otherwise None
         """
         res_fetch = await self.__users_db.fetch(query, limit=1)
         if res_fetch.count > 0:
@@ -27,19 +28,19 @@ class UserDatabaseHandler:
             return None
 
     async def get_many_by_query(
-        self, query: dict = None, limit: int = 1000, last_user_key: str = None
+        self, limit: int, last_user_key: str, query: dict = None
     ) -> ResponseItems[UserModelResponse]:
         """Get users by different criteria from the database
 
         Args:
+            
+            limit (int): Limit of users received
+            last_user_key (str): The last user key received in the previous request
             query (dict, optional): Choosing criteria. Defaults to None.
-            limit (int, optional): Limit of users received. Defaults to 1000.
-            last_user_key (str, optional): The last user key received in the previous request. Defaults to None.
 
         Returns:
             ResponseItems[UserModelResponse]: Query result
         """
-        print(query, limit, last_user_key)
         result = await self.__users_db.fetch(query, limit=limit, last=last_user_key)
         return ResponseItems[UserModelResponse](
             count=result.count, last=result.last, items=result.items
@@ -52,7 +53,8 @@ class UserDatabaseHandler:
             user (UserInDBModel): New user model
 
         Returns:
-            Union[UserInDBModel, None]: The model of the user added to the database otherwise None
+            Union[UserInDBModel, None]: The model of the user added 
+            to the database otherwise None
         """
         try:
             user = await self.__users_db.put(user.dict())
@@ -112,7 +114,7 @@ class UserDatabaseHandler:
                 {"links": self.__users_db.util.append(links)}, key
             )
         except BaseException as e:
-            print(e)
+            
             raise UpdateItemException("Updating data was not successful")
 
     async def append_skills(self, skills: list, key: str) -> None:
@@ -128,13 +130,12 @@ class UserDatabaseHandler:
         Returns:
             None: Returns nothing
         """
-        print(skills)
         try:
             return await self.__users_db.update(
                 {"skills": self.__users_db.util.append(skills)}, key
             )
         except BaseException as e:
-            print(e)
+            
             raise UpdateItemException("Updating data was not successful")
 
     async def simple_data_update(self, data: dict, key: str) -> None:
@@ -153,5 +154,5 @@ class UserDatabaseHandler:
         try:
             return await self.__users_db.update(data, key)
         except BaseException as e:
-            print(e)
+            
             raise UpdateItemException("Updating data was not successful")

@@ -1,4 +1,4 @@
-class NoRolesAccessHandler(Exception):
+class RefreshTokenException(Exception):
     def __init__(self, message):
         self.message = message
 

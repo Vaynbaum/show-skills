@@ -1,0 +1,9 @@
+[
+  {
+    "name_ru": "супер-администратор",
+    "name_en": "super_admin",
+    "can_assign": false
+  },
+  { "name_ru": "администратор", "name_en": "admin", "can_assign": true },
+  { "name_ru": "пользователь", "name_en": "user", "can_assign": true }
+]

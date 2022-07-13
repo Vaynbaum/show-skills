@@ -1,7 +1,8 @@
 from consts.name_roles import USER
-from db.abstract_database_handler import AbstractDatabaseHandler
+from db.database_handler import DatabaseHandler
 from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
+from exceptions.refresh_token_exception import RefreshTokenException
 from handlers.jwt_handler import JWTHandler
 from handlers.password_handler import PasswordHandler
 from models.message_model import MessageModel
@@ -11,22 +12,32 @@ from models.user_model import AuthModel, SignupModel, UserInDBModel
 
 
 class AuthController:
-    def __init__(self, database_controller: AbstractDatabaseHandler):
+    def __init__(self, database_controller: DatabaseHandler):
         self.__database_controller = database_controller
         self.__password_handler = PasswordHandler()
         self.__jwt_handler = JWTHandler()
 
-    async def signup(self, user_details: SignupModel):
-        """Регистрация пользователя"""
+    async def signup(self, user_details: SignupModel) -> MessageModel:
+        """User registration
+
+        Args:
+            user_details (SignupModel): User model at registration
+
+        Raises:
+            HTTPException: If the email or password is already taken or failed to register
+
+        Returns:
+            MessageModel
+        """
         user = await self.__database_controller.get_user_by_email(user_details.email)
         if user != None:
-            return MessageModel(message="Account already exists")
+            raise HTTPException(status_code=401, detail="Account already exists")
+
         user = await self.__database_controller.get_user_by_username(
             user_details.username
         )
         if user != None:
-            return MessageModel(message="Username is already occupied")
-
+            raise HTTPException(status_code=401, detail="Username is already used")
         try:
             hashed_password = self.__password_handler.encode_password(
                 user_details.password
@@ -46,17 +57,29 @@ class AuthController:
                 links=[],
                 skills=[],
             )
-            await self.__database_controller.create_user(user)
+            result = await self.__database_controller.create_user(user)
+            if result is None:
+                raise HTTPException(status_code=401, detail="Failed to signup user")
             return MessageModel(message="Registration is successful")
         except:
-            return MessageModel(message="Failed to signup user")
+            raise HTTPException(status_code=401, detail="Failed to signup user")
 
-    async def login(self, user_details: AuthModel):
-        """Аутенфикация пользователя"""
+    async def login(self, user_details: AuthModel) -> PairTokenModel:
+        """User authentication
+
+        Args:
+            user_details (AuthModel): User model at authorization
+
+        Raises:
+            HTTPException: If the password or login is invalid
+
+        Returns:
+            PairTokenModel: A pair of access and refresh tokens
+        """
         user = await self.__database_controller.get_user_by_email(user_details.email)
-
         if user is None:
             raise HTTPException(status_code=401, detail="Invalid email")
+
         if not self.__password_handler.verify_password(
             user_details.password, user.password
         ):
@@ -66,8 +89,23 @@ class AuthController:
         refresh_token = self.__jwt_handler.encode_refresh_token(user.key)
         return PairTokenModel(access_token=access_token, refresh_token=refresh_token)
 
-    def refresh_token(self, credentials: HTTPAuthorizationCredentials):
-        """Создание нового access токена по refresh токену"""
-        refresh_token = credentials.credentials
-        new_token = self.__jwt_handler.refresh_token(refresh_token)
-        return AccessTokenModel(access_token=new_token)
+    def refresh_token(
+        self, credentials: HTTPAuthorizationCredentials
+    ) -> AccessTokenModel:
+        """Creating a new access token by refresh token
+
+        Args:
+            credentials (HTTPAuthorizationCredentials)
+
+        Raises:
+            HTTPException: If the refresh token is invalid, expired or scope is invalid
+
+        Returns:
+            AccessTokenModel
+        """
+        try:
+            new_token = self.__jwt_handler.refresh_token(credentials.credentials)
+            return AccessTokenModel(access_token=new_token)
+        except RefreshTokenException as e:
+            
+            raise HTTPException(status_code=401, detail=f"{e}")

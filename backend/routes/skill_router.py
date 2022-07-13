@@ -1,21 +1,20 @@
-from typing import Union
+from typing import List
 from fastapi import APIRouter, Query, UploadFile, Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
 
 from controllers.skill_controller import SkillController
-from db.abstract_database_handler import AbstractDatabaseHandler
 from db.database_handler import DatabaseHandler
+from models.http_error import HTTPError
 from models.response_items import ResponseItems
 from models.skill_model import SkillCreateDataModel, SkillInDBModel
-from drive.abstract_drive_handler import AbstractDriveHandler
-from drive.drive_handler import DriveHandler
+from handlers.drive_handler import DriveHandler
 from handlers.access_handler import AccessHandler, RoleAccessModel
 from consts.name_roles import ADMIN, SUPER_ADMIN, USER
 
 
-database_handler: AbstractDatabaseHandler = DatabaseHandler()
-drive_handler: AbstractDriveHandler = DriveHandler()
+database_handler: DatabaseHandler = DatabaseHandler()
+drive_handler = DriveHandler()
 skill_controller = SkillController(database_handler, drive_handler)
 security = HTTPBearer()
 access_handler = AccessHandler(database_handler)
@@ -23,7 +22,30 @@ access_handler = AccessHandler(database_handler)
 router = APIRouter(tags=["Skill"])
 
 
-@router.post("/create")
+@router.post(
+    "/create",
+    responses={
+        200: {"model": SkillInDBModel},
+        400: {
+            "model": HTTPError,
+            "description": "If the user key is invalid or the skill failed to add",
+        },
+        401: {
+            "model": HTTPError,
+            "description": "If the token is invalid, expired or scope is invalid",
+        },
+        403: {
+            "model": HTTPError,
+            "description": """If authentication failed, invalid authentication credentials 
+            or no access rights to this method""",
+        },
+        500: {
+            "model": HTTPError,
+            "description": "If an error occurred while verifying access",
+        },
+    },
+    summary="Adding a new skill to the database",
+)
 async def create(
     skill: SkillCreateDataModel,
     credentials: HTTPAuthorizationCredentials = Security(security),
@@ -38,7 +60,31 @@ async def create(
     return await inside_func(skill)
 
 
-@router.post("/upload_icon/", responses={200: {"model": str}})
+@router.post(
+    "/upload_icon/",
+    responses={
+        200: {"model": str},
+        400: {
+            "model": HTTPError,
+            "description": """If the user key is invalid, the image format 
+            is invalid or the upload failed""",
+        },
+        401: {
+            "model": HTTPError,
+            "description": "If the token is invalid, expired or scope is invalid",
+        },
+        403: {
+            "model": HTTPError,
+            "description": """If authentication failed, invalid authentication credentials 
+            or no access rights to this method""",
+        },
+        500: {
+            "model": HTTPError,
+            "description": "If an error occurred while verifying access",
+        },
+    },
+    summary="Uploading the skill icon to disk",
+)
 async def upload_icon_skill(
     file: UploadFile,
     name: str = Query(example="Python"),
@@ -54,17 +100,58 @@ async def upload_icon_skill(
     return await inside_func(name, file)
 
 
-@router.get("/icon/{name_file}")
+@router.get(
+    "/icon/{name_file}",
+    responses={
+        200: {"description": "File in the format *StreamingResponse*"},
+        400: {
+            "model": HTTPError,
+            "description": "if the file could not be retrieved",
+        },
+    },
+    summary="Getting the skill icon by the name of the photo",
+)
 async def get_icon_by_name_file(name_file: str = Path(example="python.png")):
     return skill_controller.get_icon_by_name_file(name_file)
 
 
-@router.get("/all", responses={200: {"model": ResponseItems[SkillInDBModel]}})
-async def get_all_skills(limit: int = 100, last_user_key: str = None):
-    return await skill_controller.get_skill_all(limit, last_user_key)
+@router.get(
+    "/all",
+    responses={200: {"model": ResponseItems[SkillInDBModel]}},
+    summary="Getting the skill icon by the name of the photo",
+)
+async def get_all_skills(limit: int = 100, last_skill_key: str = None):
+    return await skill_controller.get_skill_all(limit, last_skill_key)
 
 
-@router.post("/add/to_myself")
+@router.post(
+    "/add/to_myself",
+    responses={
+        200: {"model": SkillInDBModel},
+        400: {
+            "model": HTTPError,
+            "description": "If the user key is invalid, skill alreade exists or failed to add skill",
+        },
+        401: {
+            "model": HTTPError,
+            "description": "If the token is invalid, expired or scope is invalid",
+        },
+        403: {
+            "model": HTTPError,
+            "description": """If authentication failed, invalid authentication credentials 
+            or no access rights to this method""",
+        },
+        404: {
+            "model": HTTPError,
+            "description": "Skill is not found",
+        },
+        500: {
+            "model": HTTPError,
+            "description": "If an error occurred while verifying access",
+        },
+    },
+    summary="Add a skill to yourself",
+)
 async def add_skill_to_myself(
     skill_key: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
@@ -79,7 +166,34 @@ async def add_skill_to_myself(
     return await inside_func(skill_key, credentials.credentials)
 
 
-@router.delete("/remove/at_yorself")
+@router.delete(
+    "/remove/at_yorself",
+    responses={
+        200: {"model": List[SkillInDBModel]},
+        400: {
+            "model": HTTPError,
+            "description": """If the user key is invalid or failed to add skill""",
+        },
+        401: {
+            "model": HTTPError,
+            "description": "If the token is invalid, expired or scope is invalid",
+        },
+        403: {
+            "model": HTTPError,
+            "description": """If authentication failed, invalid authentication credentials 
+            or no access rights to this method""",
+        },
+        404: {
+            "model": HTTPError,
+            "description": "Skill is not found",
+        },
+        500: {
+            "model": HTTPError,
+            "description": "If an error occurred while verifying access",
+        },
+    },
+    summary="Add a skill to yourself",
+)
 async def add_skill_to_myself(
     skill_key: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
