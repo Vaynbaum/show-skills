@@ -1,25 +1,23 @@
-from fastapi import APIRouter, UploadFile, Path
+from fastapi import APIRouter, Depends, UploadFile, Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
 
-from consts.name_attribute_access_roles import NAME_ATTR_OWNER
 from consts.name_roles import ADMIN, SUPER_ADMIN, USER
-from consts.owner_enum import OwnerEnum
 from controllers.post_controller import PostController
 from db.database_handler import DatabaseHandler
+from depends.get_db import get_db
+from depends.get_drive import get_drive
+from handlers.access.role_access import RoleAccess
 from handlers.drive_handler import DriveHandler
 from handlers.access_handler import AccessHandler
+from handlers.access.owner.any_owner import AnyOwner
+from handlers.access.owner.own_owner import OwnOwner
 from models.http_error import HTTPError
 from models.message_model import MessageModel
 from models.post_model import PostInDBModel, PostInputModel
 from models.response_items import ResponseItems
-from models.role_access_model import RoleAccessModel
 
 security = HTTPBearer()
-database_handler = DatabaseHandler()
-drive_handler = DriveHandler()
-post_controller = PostController(database_handler, drive_handler)
-access_handler = AccessHandler(database_handler)
 router = APIRouter(tags=["Post"])
 
 
@@ -50,11 +48,14 @@ router = APIRouter(tags=["Post"])
 async def create_post(
     post: PostInputModel,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
 ):
-    @access_handler.maker_role_access(
-        credentials.credentials, [RoleAccessModel(name=USER)]
-    )
+    access_handler = AccessHandler(db)
+
+    @access_handler.maker_role_access(credentials.credentials, [RoleAccess(USER)])
     async def inside_func(post, token):
+        post_controller = PostController(db, drive)
         return await post_controller.create_post(post, token)
 
     return await inside_func(post, credentials.credentials)
@@ -88,11 +89,14 @@ async def create_post(
 async def upload_image_to_post(
     file: UploadFile,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
 ):
-    @access_handler.maker_role_access(
-        credentials.credentials, [RoleAccessModel(name=USER)]
-    )
+    access_handler = AccessHandler(db)
+
+    @access_handler.maker_role_access(credentials.credentials, [RoleAccess(USER)])
     async def inside_func(file):
+        post_controller = PostController(db, drive)
         return post_controller.upload_photo(file)
 
     return await inside_func(file)
@@ -111,7 +115,10 @@ async def upload_image_to_post(
 )
 async def get_image_by_name(
     name_image: str = Path(example="python.png"),
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
 ):
+    post_controller = PostController(db, drive)
     return post_controller.get_photo(name_image)
 
 
@@ -120,7 +127,13 @@ async def get_image_by_name(
     responses={200: {"model": ResponseItems[PostInDBModel]}},
     summary="Getting all posts from the database",
 )
-async def get_all_posts(limit: int = 100, last_user_key: str = None):
+async def get_all_posts(
+    limit: int = 100,
+    last_user_key: str = None,
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
+):
+    post_controller = PostController(db, drive)
     return await post_controller.get_all_post(limit, last_user_key)
 
 
@@ -130,8 +143,13 @@ async def get_all_posts(limit: int = 100, last_user_key: str = None):
     summary="Getting posts by skill name from the database",
 )
 async def get_posts_by_skill(
-    name_skill: str, limit: int = 100, last_user_key: str = None
+    name_skill: str,
+    limit: int = 100,
+    last_user_key: str = None,
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
 ):
+    post_controller = PostController(db, drive)
     return await post_controller.get_posts_by_skill(name_skill, limit, last_user_key)
 
 
@@ -166,15 +184,18 @@ async def get_posts_by_skill(
 async def delete_post_by_key(
     post_key: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
 ):
+    access_handler = AccessHandler(db)
+    post_controller = PostController(db, drive)
+
     @access_handler.maker_role_access(
         credentials.credentials,
         [
-            RoleAccessModel(
-                name=SUPER_ADMIN, attributes={NAME_ATTR_OWNER: OwnerEnum.ANY}
-            ),
-            RoleAccessModel(name=ADMIN, attributes={NAME_ATTR_OWNER: OwnerEnum.ANY}),
-            RoleAccessModel(name=USER, attributes={NAME_ATTR_OWNER: OwnerEnum.OWN}),
+            RoleAccess(SUPER_ADMIN, owners=[AnyOwner()]),
+            RoleAccess(ADMIN, owners=[AnyOwner()]),
+            RoleAccess(USER, owners=[OwnOwner()]),
         ],
         False,
     )
@@ -216,10 +237,13 @@ async def edit_post(
     post: PostInputModel,
     post_key: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
 ):
-    @access_handler.maker_role_access(
-        credentials.credentials, [RoleAccessModel(name=USER)]
-    )
+    access_handler = AccessHandler(db)
+    post_controller = PostController(db, drive)
+
+    @access_handler.maker_role_access(credentials.credentials, [RoleAccess(USER)])
     async def inside_func(post, post_key):
         return await post_controller.update_post(post, post_key)
 

@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from db.database_handler import DatabaseHandler
 from exceptions.decode_token_exception import DecodeTokenException
 from exceptions.update_user_data_exception import UpdateUserDataException
+from handlers.datetime_handler import DatetimeHandler
 from models.response_items import ResponseItems
 from models.message_model import MessageModel
 from models.user_model import UserAdditionalDataModel, UserInDBModel, UserModelResponse
@@ -27,8 +28,8 @@ class UserController:
             Union[UserModelResponse, None]: If a user is found,
             then returns UserInDBModel otherwise None
         """
-        if username != None:
-            user = await self.__database_controller.get_user_by_username(username)
+        user = await self.__database_controller.get_user_by_username(username)
+        if user != None:
             return UserModelResponse(**user.dict())
         return None
 
@@ -71,7 +72,7 @@ class UserController:
             token (str): access token
 
         Raises:
-            HTTPException:  If the token is invalid, expired, scope is invalid 
+            HTTPException:  If the token is invalid, expired, scope is invalid
             or the user key is invalid
 
         Returns:
@@ -80,7 +81,7 @@ class UserController:
         try:
             sub = self.__jwt_handler.decode_token(token)
         except DecodeTokenException as e:
-            
+
             raise HTTPException(status_code=401, detail=f"{e}")
         user = await self.__database_controller.get_user_by_key(sub)
         if user is None:
@@ -88,25 +89,41 @@ class UserController:
         return user
 
     async def update_additional_user_data_by_key(
-        self, user: UserAdditionalDataModel, user_key: str
+        self, user: UserAdditionalDataModel, token: str
     ) -> MessageModel:
         """Changes to additional user data
 
         Args:
             user (UserAdditionalDataModel): User model for changing data
-            user_key (str): user's key
+            token (str): access token
 
         Raises:
-            HTTPException: If the user data update was not successful
+            HTTPException: If the token is invalid, expired, scope is invalid, invalid data
+            or the user data update was not successful
 
         Returns:
             MessageModel
-        """        
+        """
+        ALLOW_YEAR_LEFT = -100
+        ALLOW_YEAR_RIGHT = -14
+        datetime_handler = DatetimeHandler()
+
+        birth_date = datetime_handler.convert_to_datetime(user.birth_date)
+        if not datetime_handler.check_year_range(
+            birth_date, ALLOW_YEAR_LEFT, ALLOW_YEAR_RIGHT
+        ):
+            raise HTTPException(status_code=400, detail="Invalid year")
+
+        try:
+            sub = self.__jwt_handler.decode_token(token)
+        except DecodeTokenException as e:
+
+            raise HTTPException(status_code=401, detail=f"{e}")
         try:
             await self.__database_controller.update_simple_data_to_user(
-                user.dict(), user_key
+                user.dict(), sub
             )
             return MessageModel(message="Data successfully added")
         except UpdateUserDataException as e:
-            
+
             raise HTTPException(status_code=400, detail=f"{e}")

@@ -29,10 +29,10 @@ from models.suggestion_model import SuggestionInDBModel
 from models.user_model import UserInDBModel, UserModelResponse
 
 
-class DatabaseHandler():
-    def __init__(self):
-        load_dotenv()
-        self.__deta = Deta(os.getenv("DETA_PROJECT_KEY"))
+class DatabaseHandler:
+    def __init__(self, deta: Deta):
+        # load_dotenv()
+        self.__deta = deta
         self.__user_handler = UserDatabaseHandler(self.__deta)
         self.__role_handler = RoleDatabaseHandler(self.__deta)
         self.__skill_handler = SkillDatabaseHandler(self.__deta)
@@ -140,7 +140,7 @@ class DatabaseHandler():
         try:
             return await self.__user_handler.append_links(links, key)
         except UpdateItemException as e:
-            
+
             raise AppendLinksException("Adding links to the user is not successful")
 
     async def append_skills_to_user(self, skills: list, key: str) -> None:
@@ -159,7 +159,7 @@ class DatabaseHandler():
         try:
             return await self.__user_handler.append_skills(skills, key)
         except UpdateItemException as e:
-            
+
             raise AppendSkillsException("Adding skills to the user is not successful")
 
     async def update_simple_data_to_user(self, data: dict, key: str) -> None:
@@ -178,7 +178,7 @@ class DatabaseHandler():
         try:
             return await self.__user_handler.simple_data_update(data, key)
         except UpdateItemException as e:
-            
+
             raise UpdateUserDataException("Updating user data was not successful")
 
     # Role
@@ -269,13 +269,14 @@ class DatabaseHandler():
         return await self.__event_handler.create(event)
 
     async def get_events_by_query(
-        self, limit: int, last_event_key: str, query: dict = None
+        self, limit: int = 1000, last_event_key: str = None, query: dict = None
     ) -> ResponseItems[EventInDBModel]:
         """Get events by different criteria from the database
 
         Args:
-            limit (int): Limit of events received
-            last_event_key (str): The last event key received in the previous request
+            limit (int, optional): Limit of events received. Defaults to 1000.
+            last_event_key (str, optional): The last event key received 
+            in the previous request. Defaults to None.
             query (dict, optional): Choosing criteria. Defaults to None
 
         Returns:
@@ -324,7 +325,7 @@ class DatabaseHandler():
         try:
             return await self.__event_handler.update(event, key)
         except UpdateItemException as e:
-            
+
             raise UpdateEventException("Updating event data was not successful")
 
     async def delete_events_after_user(self, keys: list[dict]) -> dict:
@@ -405,7 +406,7 @@ class DatabaseHandler():
         try:
             return await self.__post_handler.update(post, post_key)
         except UpdateItemException as e:
-            
+
             raise UpdatePostException("Updating post data was not successful")
 
     async def append_like_to_post(self, like: LikeModel, post_key: str) -> None:
@@ -424,7 +425,7 @@ class DatabaseHandler():
         try:
             return await self.__post_handler.append_like(like, post_key)
         except UpdateItemException as e:
-            
+
             raise AppendLikeException("Adding like to post is not successful")
 
     async def append_comment_to_post(
@@ -445,7 +446,7 @@ class DatabaseHandler():
         try:
             return await self.__post_handler.append_comment(comment, post_key)
         except UpdateItemException as e:
-            
+
             raise AppendCommentException("Adding comment to post is not successful")
 
     # Suggestion
@@ -458,7 +459,7 @@ class DatabaseHandler():
             suggestion (SuggestionInDBModel): New suggestion model
 
         Returns:
-            Union[SuggestionInDBModel, None]: The model of the suggestion added 
+            Union[SuggestionInDBModel, None]: The model of the suggestion added
             to the database otherwise None
         """
         return await self.__suggestion_handler.add(suggestion)
@@ -494,7 +495,7 @@ class DatabaseHandler():
         try:
             return await self.__suggestion_handler.update(data, suggestion_key)
         except UpdateItemException as e:
-            
+
             raise UpdateSuggestionException(
                 "Updating suggestion data was not successful"
             )

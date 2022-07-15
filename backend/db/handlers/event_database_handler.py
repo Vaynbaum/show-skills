@@ -14,18 +14,19 @@ class EventDatabaseHandler:
         self.__datetime_handler = DatetimeHandler()
 
     async def get_many_by_query(
-        self, limit: int, last_event_key: str, query: dict = None
+        self, limit: int = 1000, last_event_key: str = None, query: dict = None
     ) -> ResponseItems[EventInDBModel]:
         """Get events by different criteria from the database
 
         Args:
-            limit (int): Limit of events received
-            last_event_key (str): The last event key received in the previous request
-            query (dict, optional): Choosing criteria. Defaults to None
-            
+            limit (int, optional): Limit of events received. Defaults to 1000.
+            last_event_key (str, optional): The last event key received in 
+            the previous request. Defaults to None.
+            query (dict, optional): Choosing criteria. Defaults to None.
+
         Returns:
             ResponseItems[EventInDBModel]: Query result
-        """
+        """  
         result = await self.__event_db.fetch(query, limit=limit, last=last_event_key)
         return ResponseItems[EventInDBModel](
             count=result.count, last=result.last, items=result.items
@@ -99,7 +100,7 @@ class EventDatabaseHandler:
                 expire_at=expire,
             )
         except BaseException as e:
-            
+
             raise UpdateItemException("Updating data was not successful")
 
     async def delete_after_user(self, keys: list[dict]) -> dict:

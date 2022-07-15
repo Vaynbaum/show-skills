@@ -8,3 +8,4 @@ Pillow
 python-multipart
 python-dotenv
 email-validator
+pytest

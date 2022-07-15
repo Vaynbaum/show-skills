@@ -5,8 +5,8 @@ from controllers.user_controller import UserController
 from db.database_handler import DatabaseHandler
 from exceptions.no_roles_access_exception import NoRolesAccessException
 from exceptions.no_token_access_exception import NoTokenAccessException
+from handlers.access.role_access import RoleAccess
 from models.user_model import UserInDBModel
-from models.role_access_model import RoleAccessModel
 
 
 class AccessHandler:
@@ -15,12 +15,12 @@ class AccessHandler:
         self.__database_controller = database_controller
 
     def __find_access_role(
-        self, roles: list[RoleAccessModel], user: UserInDBModel
-    ) -> RoleAccessModel:
+        self, roles: list[RoleAccess], user: UserInDBModel
+    ) -> RoleAccess:
         """Find the user's role in the list with allowed roles
 
         Args:
-            roles (list[RoleAccessModel]): role list
+            roles (list[RoleAccess]): role list
             user (UserInDBModel): user's database model
 
         Raises:
@@ -28,9 +28,9 @@ class AccessHandler:
             the allowed method
 
         Returns:
-            RoleAccessModel: role found from the list of allowed
+            RoleAccess: role found from the list of allowed
         """
-        result = list(filter(lambda item: user.role.name_en in item.name, roles))
+        result = list(filter(lambda item: user.role.name_en == item.name, roles))
         if len(result) == 0:
             raise HTTPException(
                 status_code=403,
@@ -82,20 +82,20 @@ class AccessHandler:
         self,
         kwargs: dict,
         user: UserInDBModel,
-        roles: Union[list[RoleAccessModel], None],
-    ) -> tuple[RoleAccessModel, dict]:
+        roles: Union[list[RoleAccess], None],
+    ) -> tuple[RoleAccess, dict]:
         """Get a role
 
         Args:
             kwargs (dict)
             user (UserInDBModel): user's database model
-            roles (Union[list[RoleAccessModel], None]): role list
+            roles (Union[list[RoleAccess], None]): role list
 
         Raises:
             NotRolesAccessHandler: If there is no list of roles
 
         Returns:
-            tuple[RoleAccessModel, dict]: role model and kwargs
+            tuple[RoleAccess, dict]: role model and kwargs
         """
         if "role" in kwargs and kwargs["role"] is not None:
             role = kwargs["role"]
@@ -110,20 +110,20 @@ class AccessHandler:
         self,
         kwargs: dict,
         token: Union[str, None],
-        roles: Union[list[RoleAccessModel], None],
-    ) -> tuple[dict, UserInDBModel, RoleAccessModel]:
+        roles: Union[list[RoleAccess], None],
+    ) -> tuple[dict, UserInDBModel, RoleAccess]:
         """Get role and user
 
         Args:
             kwargs (dict)
             token (Union[str, None]): user's token
-            roles (Union[list[RoleAccessModel], None]): role list
+            roles (Union[list[RoleAccess], None]): role list
 
         Raises:
             HTTPException: If an error occurred while verifying access
 
         Returns:
-            tuple[dict, UserInDBModel, RoleAccessModel]: kwargs, user model and role model
+            tuple[dict, UserInDBModel, RoleAccess]: kwargs, user model and role model
         """
         try:
             user, kwargs = await self.__find_user(kwargs, token)
@@ -148,7 +148,7 @@ class AccessHandler:
     def maker_role_access(
         self,
         token: str = None,
-        roles: list[RoleAccessModel] = None,
+        roles: list[RoleAccess] = None,
         is_lact_decorator: bool = True,
     ):
         """Creating a user access decorator by role"""
@@ -170,7 +170,7 @@ class AccessHandler:
         self,
         author_key: str,
         token: str = None,
-        roles: list[RoleAccessModel] = None,
+        roles: list[RoleAccess] = None,
         is_lact_decorator: bool = True,
     ):
         """Creating a user access decorator by object ownership"""
@@ -180,8 +180,9 @@ class AccessHandler:
                 kwargs, user, role = await self.__get_role_user_access(
                     kwargs, token, roles
                 )
+                author = await self.__database_controller.get_user_by_key(author_key)
                 # If the user's role allows action on the object, then call method
-                if role.check_owner_access(user, author_key):
+                if role.check_owner_access(user, author):
                     kwargs = self.__clean_temp_vars(is_lact_decorator, kwargs)
                     return await func(*args, **kwargs)
                 else:
@@ -197,7 +198,7 @@ class AccessHandler:
         self,
         to_user_key: str,
         token: str = None,
-        roles: list[RoleAccessModel] = None,
+        roles: list[RoleAccess] = None,
         is_lact_decorator: bool = True,
     ):
         """Creating a user access decorator, if possible assign"""

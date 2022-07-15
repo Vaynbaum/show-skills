@@ -1,21 +1,18 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
 
 from consts.name_roles import USER
 from db.database_handler import DatabaseHandler
+from depends.get_db import get_db
+from handlers.access.role_access import RoleAccess
 from handlers.access_handler import AccessHandler
 from models.http_error import HTTPError
 from models.message_model import MessageModel
-from models.role_access_model import RoleAccessModel
 from models.link_model import LinkModel
 from controllers.link_controller import LinkController
 
 security = HTTPBearer()
-database_handler = DatabaseHandler()
-access_handler = AccessHandler(database_handler)
-link_controller = LinkController(database_handler)
-
 router = APIRouter(tags=["Link"])
 
 
@@ -47,11 +44,13 @@ router = APIRouter(tags=["Link"])
 async def add_link(
     link: LinkModel,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
 ):
-    @access_handler.maker_role_access(
-        credentials.credentials, [RoleAccessModel(name=USER)]
-    )
+    access_handler = AccessHandler(db)
+
+    @access_handler.maker_role_access(credentials.credentials, [RoleAccess(USER)])
     async def inside_func(link, token):
+        link_controller = LinkController(db)
         return await link_controller.add_link(link, token)
 
     return await inside_func(link, credentials.credentials)
@@ -88,11 +87,13 @@ async def add_link(
 async def remove_link(
     url_link: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
 ):
-    @access_handler.maker_role_access(
-        credentials.credentials, [RoleAccessModel(name=USER)]
-    )
+    access_handler = AccessHandler(db)
+
+    @access_handler.maker_role_access(credentials.credentials, [RoleAccess(USER)])
     async def inside_func(url_link, token):
+        link_controller = LinkController(db)
         return await link_controller.remove_link(url_link, token)
 
     return await inside_func(url_link, credentials.credentials)

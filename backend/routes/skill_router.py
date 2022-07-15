@@ -1,24 +1,22 @@
 from typing import List
-from fastapi import APIRouter, Query, UploadFile, Path
+from fastapi import APIRouter, Depends, Query, UploadFile, Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
 
+
 from controllers.skill_controller import SkillController
 from db.database_handler import DatabaseHandler
+from depends.get_db import get_db
+from depends.get_drive import get_drive
+from handlers.access.role_access import RoleAccess
 from models.http_error import HTTPError
 from models.response_items import ResponseItems
 from models.skill_model import SkillCreateDataModel, SkillInDBModel
 from handlers.drive_handler import DriveHandler
-from handlers.access_handler import AccessHandler, RoleAccessModel
+from handlers.access_handler import AccessHandler
 from consts.name_roles import ADMIN, SUPER_ADMIN, USER
 
-
-database_handler: DatabaseHandler = DatabaseHandler()
-drive_handler = DriveHandler()
-skill_controller = SkillController(database_handler, drive_handler)
 security = HTTPBearer()
-access_handler = AccessHandler(database_handler)
-
 router = APIRouter(tags=["Skill"])
 
 
@@ -49,12 +47,17 @@ router = APIRouter(tags=["Skill"])
 async def create(
     skill: SkillCreateDataModel,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
 ):
+    access_handler = AccessHandler(db)
+
     @access_handler.maker_role_access(
         credentials.credentials,
-        [RoleAccessModel(name=SUPER_ADMIN), RoleAccessModel(name=ADMIN)],
+        [RoleAccess(SUPER_ADMIN), RoleAccess(ADMIN)],
     )
     async def inside_func(skill):
+        skill_controller = SkillController(db, drive)
         return await skill_controller.create_skill(skill)
 
     return await inside_func(skill)
@@ -89,12 +92,17 @@ async def upload_icon_skill(
     file: UploadFile,
     name: str = Query(example="Python"),
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
 ):
+    access_handler = AccessHandler(db)
+
     @access_handler.maker_role_access(
         credentials.credentials,
-        [RoleAccessModel(name=SUPER_ADMIN), RoleAccessModel(name=ADMIN)],
+        [RoleAccess(SUPER_ADMIN), RoleAccess(ADMIN)],
     )
     async def inside_func(name, file):
+        skill_controller = SkillController(db, drive)
         return skill_controller.upload_icon_skill(name, file)
 
     return await inside_func(name, file)
@@ -111,7 +119,12 @@ async def upload_icon_skill(
     },
     summary="Getting the skill icon by the name of the photo",
 )
-async def get_icon_by_name_file(name_file: str = Path(example="python.png")):
+async def get_icon_by_name_file(
+    name_file: str = Path(example="python.png"),
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
+):
+    skill_controller = SkillController(db, drive)
     return skill_controller.get_icon_by_name_file(name_file)
 
 
@@ -120,7 +133,14 @@ async def get_icon_by_name_file(name_file: str = Path(example="python.png")):
     responses={200: {"model": ResponseItems[SkillInDBModel]}},
     summary="Getting the skill icon by the name of the photo",
 )
-async def get_all_skills(limit: int = 100, last_skill_key: str = None):
+async def get_all_skills(
+    limit: int = 100,
+    last_skill_key: str = None,
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
+):
+    skill_controller = SkillController(db, drive)
+
     return await skill_controller.get_skill_all(limit, last_skill_key)
 
 
@@ -155,12 +175,17 @@ async def get_all_skills(limit: int = 100, last_skill_key: str = None):
 async def add_skill_to_myself(
     skill_key: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
 ):
+    access_handler = AccessHandler(db)
+
     @access_handler.maker_role_access(
         credentials.credentials,
-        [RoleAccessModel(name=USER)],
+        [RoleAccess(USER)],
     )
     async def inside_func(skill_key, token):
+        skill_controller = SkillController(db, drive)
         return await skill_controller.add_skill(skill_key, token)
 
     return await inside_func(skill_key, credentials.credentials)
@@ -197,12 +222,17 @@ async def add_skill_to_myself(
 async def add_skill_to_myself(
     skill_key: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
 ):
+    access_handler = AccessHandler(db)
+
     @access_handler.maker_role_access(
         credentials.credentials,
-        [RoleAccessModel(name=USER)],
+        [RoleAccess(USER)],
     )
     async def inside_func(skill_key, token):
+        skill_controller = SkillController(db, drive)
         return await skill_controller.remove_skill(skill_key, token)
 
     return await inside_func(skill_key, credentials.credentials)

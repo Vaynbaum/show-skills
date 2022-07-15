@@ -40,24 +40,26 @@ class EventController:
                 "format_event": event.format_event,
                 "place": event.place,
                 "author.key": user.key,
-                "date": event.date,
+                "date": self.__datetime_handler.convert_to_int(event.date),
             }
         )
         if result.count > 0:
             raise HTTPException(status_code=400, detail="Event already exists")
         author = ShortUserModelResponse(**user.dict())
         event = EventInDBModel(**event.dict(), author=author)
+        event.date = self.__datetime_handler.convert_to_int(event.date)
         await self.__database_controller.create_event(event)
         return event
 
     async def get_all_events(
-        self, limit: int, last_event_key: str
+        self, limit: int = 1000, last_event_key: str = None
     ) -> ResponseItems[EventInDBModel]:
         """Getting all events from the database
 
         Args:
-            limit (int): Limit of events received
-            last_event_key (str): The last event key received in the previous request
+            limit (int, optional): Limit of events received. Defaults to 1000.
+            last_event_key (str, optional): The last event key received
+            in the previous request. Defaults to None.
 
         Returns:
             ResponseItems[EventInDBModel]: Query result
@@ -91,12 +93,15 @@ class EventController:
             MessageModel
         """
         events = await self.__database_controller.get_events_by_query(
-            {"author.key": key},
+            query={"author.key": key},
         )
         event_keys = [{"key": event.key} for event in events.items]
-        result = await self.__database_controller.delete_events_after_user(event_keys)
-        if "failed" in result:
-            raise HTTPException(status_code=400, detail="Events not deleted")
+        if len(event_keys) > 0:
+            result = await self.__database_controller.delete_events_after_user(
+                event_keys
+            )
+            if "failed" in result:
+                raise HTTPException(status_code=400, detail="Events not deleted")
         return MessageModel(message="Events deleted successfully")
 
     async def get_author_key_by_event_key(self, event_key: str) -> str:
@@ -119,17 +124,19 @@ class EventController:
     async def get_events_by_subscription(
         self,
         token: str,
-        limit: int,
-        last_event_key: str,
         next_days: Union[int, None],
+        limit: int = 1000,
+        last_event_key: str = None,
     ) -> ResponseItems[EventInDBModel]:
         """Getting events by subscriptions
 
         Args:
             token (str): access token
-            limit (int): Limit of events received
-            last_event_key (str): The last event key received in the previous request
             next_days (Union[int, None]): The number of days in the future when events will occur
+            limit (int, optional): Limit of events received. Defaults to 1000.
+            last_event_key (str, optional): The last event key received
+            in the previous request. Defaults to None.
+
 
         Returns:
             ResponseItems[EventInDBModel]: Query result
@@ -158,14 +165,15 @@ class EventController:
         )
 
     async def get_event_by_user_key(
-        self, user_key: str, limit: int, last_event_key: str
+        self, user_key: str, limit: int = 1000, last_event_key: str = None
     ) -> ResponseItems[EventInDBModel]:
         """Getting user events
 
         Args:
             user_key (str)
-            limit (int): Limit of events received
-            last_event_key (str): The last event key received in the previous request
+            limit (int, optional): Limit of events received. Defaults to 1000.
+            last_event_key (str, optional): The last event key received
+            in the previous request. Defaults to None.
 
         Returns:
             ResponseItems[EventInDBModel]: Query result
@@ -188,7 +196,7 @@ class EventController:
 
         Returns:
             MessageModel
-        """        
+        """
         try:
             await self.__database_controller.update_event_by_key(event, event_key)
             return MessageModel(message="Editing successful")

@@ -15,9 +15,9 @@ from exceptions.upload_photo_exception import UploadPhotoException
 
 
 class DriveHandler:
-    def __init__(self):
+    def __init__(self, deta: Deta):
         load_dotenv()
-        self.__deta = Deta(os.getenv("DETA_PROJECT_KEY"))
+        self.__deta = deta
 
     def __upload_file(
         self, name_file: str, name_drive: str, file: Union[BinaryIO, bytes]
@@ -39,7 +39,7 @@ class DriveHandler:
         try:
             return items.put(name_file, file)
         except Exception as e:
-            
+
             raise UploadFileException(f"{e}")
 
     def __get_file(
@@ -61,7 +61,7 @@ class DriveHandler:
         try:
             return items.get(name_file)
         except Exception as e:
-            
+
             raise GetFileException(f"{e}")
 
     def __get_extension(self, name_file: str) -> str:
@@ -144,7 +144,7 @@ class DriveHandler:
         try:
             return self.__upload_file(f"{name_directory}/{name_file}", "photos", img)
         except UploadFileException as e:
-            
+
             raise UploadPhotoException(f"{e}")
 
     def get_photo(
@@ -173,5 +173,5 @@ class DriveHandler:
                 else None
             )
         except GetFileException as e:
-            
+
             raise GetPhotoException(f"{e}")

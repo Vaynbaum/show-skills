@@ -1,4 +1,5 @@
-from typing import List
+from datetime import datetime
+from typing import List, Union
 from pydantic import BaseModel
 
 from models.comment_model import CommentModel
@@ -17,7 +18,12 @@ class PostInputModel(BaseModel):
             "example": {
                 "name": "UML диаграммы",
                 "content_html": "<p>уц ац цуау цуа уц wef e<img alt='' src='http://localhost:8000/post/photo/qxyzxrtz_%D0%91%D0%B0%D0%B7%D0%B0%D0%94%D0%B0%D0%BD%D0%BD%D1%8B%D1%85.png' style='width:567px' /></p>",
-                "skill": {"key": "3ed34r43f3", "name": "UML-диаграммы", "scope": "Программирование", "url": "http://localhost:8000/skill/icon/uml.png"},
+                "skill": {
+                    "key": "3ed34r43f3",
+                    "name": "UML-диаграммы",
+                    "scope": "Программирование",
+                    "url": "http://localhost:8000/skill/icon/uml.png",
+                },
             }
         }
 

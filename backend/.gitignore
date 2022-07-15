@@ -3,5 +3,5 @@ __pycache__
 .deta
 .vscode
 .pytest_cache
-set_role_system.py
 test.py
+test.js

@@ -1,23 +1,21 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
 
-from consts.name_attribute_access_roles import NAME_ATTR_OWNER
-from consts.owner_enum import OwnerEnum
 from controllers.event_controller import EventController
 from db.database_handler import DatabaseHandler
+from depends.get_db import get_db
+from handlers.access.owner.any_owner import AnyOwner
+from handlers.access.owner.own_owner import OwnOwner
+from handlers.access.role_access import RoleAccess
 from handlers.access_handler import AccessHandler
 from models.event_model import EventInDBModel, EventInputModel
 from models.http_error import HTTPError
 from models.message_model import MessageModel
 from models.response_items import ResponseItems
-from models.role_access_model import RoleAccessModel
 from consts.name_roles import ADMIN, SUPER_ADMIN, USER
 
 security = HTTPBearer()
-database_handler = DatabaseHandler()
-access_handler = AccessHandler(database_handler)
-event_controller = EventController(database_handler)
 router = APIRouter(tags=["Event"])
 
 
@@ -48,11 +46,13 @@ router = APIRouter(tags=["Event"])
 async def create_event(
     event: EventInputModel,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
 ):
-    @access_handler.maker_role_access(
-        credentials.credentials, [RoleAccessModel(name=USER)]
-    )
+    access_handler = AccessHandler(db)
+
+    @access_handler.maker_role_access(credentials.credentials, [RoleAccess(USER)])
     async def inside_func(event, token):
+        event_controller = EventController(db)
         return await event_controller.create_event(event, token)
 
     return await inside_func(event, credentials.credentials)
@@ -86,12 +86,16 @@ async def get_all_events(
     credentials: HTTPAuthorizationCredentials = Security(security),
     limit: int = 1000,
     last_event_key: str = None,
+    db: DatabaseHandler = Depends(get_db),
 ):
+    access_handler = AccessHandler(db)
+
     @access_handler.maker_role_access(
         credentials.credentials,
-        [RoleAccessModel(name=ADMIN), RoleAccessModel(name=SUPER_ADMIN)],
+        [RoleAccess(ADMIN), RoleAccess(SUPER_ADMIN)],
     )
     async def inside_func(limit, last_event_key):
+        event_controller = EventController(db)
         return await event_controller.get_all_events(limit, last_event_key)
 
     return await inside_func(limit, last_event_key)
@@ -126,12 +130,16 @@ async def get_events_by_subscription(
     limit: int = 1000,
     last_event_key: str = None,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
 ):
+    access_handler = AccessHandler(db)
+
     @access_handler.maker_role_access(
         credentials.credentials,
-        [RoleAccessModel(name=USER)],
+        [RoleAccess(USER)],
     )
     async def inside_func(token, limit, last_event_key, next_days):
+        event_controller = EventController(db)
         return await event_controller.get_events_by_subscription(
             token, limit, last_event_key, next_days
         )
@@ -168,16 +176,20 @@ async def get_events_by_user(
     limit: int = 1000,
     last_event_key: str = None,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
 ):
+    access_handler = AccessHandler(db)
+
     @access_handler.maker_role_access(
         credentials.credentials,
         [
-            RoleAccessModel(name=SUPER_ADMIN),
-            RoleAccessModel(name=ADMIN),
-            RoleAccessModel(name=USER),
+            RoleAccess(SUPER_ADMIN),
+            RoleAccess(ADMIN),
+            RoleAccess(USER),
         ],
     )
     async def inside_func(key, limit, last_event_key):
+        event_controller = EventController(db)
         return await event_controller.get_event_by_user_key(key, limit, last_event_key)
 
     return await inside_func(key, limit, last_event_key)
@@ -212,16 +224,19 @@ async def get_events_by_user(
     summary="Delete a event from the database by key",
 )
 async def delete_event(
-    key: str, credentials: HTTPAuthorizationCredentials = Security(security)
+    key: str,
+    credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
 ):
+    access_handler = AccessHandler(db)
+    event_controller = EventController(db)
+
     @access_handler.maker_role_access(
         credentials.credentials,
         [
-            RoleAccessModel(
-                name=SUPER_ADMIN, attributes={NAME_ATTR_OWNER: OwnerEnum.ANY}
-            ),
-            RoleAccessModel(name=ADMIN, attributes={NAME_ATTR_OWNER: OwnerEnum.ANY}),
-            RoleAccessModel(name=USER, attributes={NAME_ATTR_OWNER: OwnerEnum.OWN}),
+            RoleAccess(SUPER_ADMIN, owners=[AnyOwner()]),
+            RoleAccess(ADMIN, owners=[AnyOwner()]),
+            RoleAccess(USER, owners=[OwnOwner()]),
         ],
         False,
     )
@@ -266,11 +281,15 @@ async def edit_event(
     event_key: str,
     event: EventInputModel,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
 ):
+    access_handler = AccessHandler(db)
+    event_controller = EventController(db)
+
     @access_handler.maker_role_access(
         credentials.credentials,
         [
-            RoleAccessModel(name=USER, attributes={NAME_ATTR_OWNER: OwnerEnum.OWN}),
+            RoleAccess(USER, owners=[OwnOwner()]),
         ],
         False,
     )

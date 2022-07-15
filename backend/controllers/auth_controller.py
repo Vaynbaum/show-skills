@@ -24,7 +24,7 @@ class AuthController:
             user_details (SignupModel): User model at registration
 
         Raises:
-            HTTPException: If the email or password is already taken or failed to register
+            HTTPException: If the email or username is already taken or failed to register
 
         Returns:
             MessageModel

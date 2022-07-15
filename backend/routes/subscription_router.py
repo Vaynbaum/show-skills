@@ -1,23 +1,20 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
 
 from controllers.subscription_controller import SubscriptionController
 from consts.name_roles import USER
 from db.database_handler import DatabaseHandler
+from depends.get_db import get_db
+from handlers.access.role_access import RoleAccess
 from handlers.access_handler import AccessHandler
 from models.http_error import HTTPError
 from models.response_items import ResponseItems
 from models.result_subscribe_model import ResultSubscriptionModel
-from models.role_access_model import RoleAccessModel
 from models.subscription_model import SubscriptionModel
 
 
-database_handler = DatabaseHandler()
-access_handler = AccessHandler(database_handler)
-subscription_controller = SubscriptionController(database_handler)
 security = HTTPBearer()
-
 router = APIRouter(tags=["Subscription"])
 
 
@@ -53,11 +50,13 @@ router = APIRouter(tags=["Subscription"])
 async def subscribe(
     username_favorite: str = Query(example="ivanov"),
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
 ):
-    @access_handler.maker_role_access(
-        credentials.credentials, [RoleAccessModel(name=USER)]
-    )
+    access_handler = AccessHandler(db)
+
+    @access_handler.maker_role_access(credentials.credentials, [RoleAccess(USER)])
     async def inside_func(username_favorite, credentials):
+        subscription_controller = SubscriptionController(db)
         return await subscription_controller.subscribe(
             username_favorite, credentials.credentials
         )
@@ -96,11 +95,13 @@ async def subscribe(
 async def annul(
     username_favorite: str = Query(example="ivanov"),
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
 ):
-    @access_handler.maker_role_access(
-        credentials.credentials, [RoleAccessModel(name=USER)]
-    )
+    access_handler = AccessHandler(db)
+
+    @access_handler.maker_role_access(credentials.credentials, [RoleAccess(USER)])
     async def inside_func(username_favorite, credentials):
+        subscription_controller = SubscriptionController(db)
         return await subscription_controller.annul(
             username_favorite, credentials.credentials
         )
@@ -135,11 +136,13 @@ async def annul(
 async def get_my_subscription(
     limit: int = None,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
 ):
-    @access_handler.maker_role_access(
-        credentials.credentials, [RoleAccessModel(name=USER)]
-    )
+    access_handler = AccessHandler(db)
+
+    @access_handler.maker_role_access(credentials.credentials, [RoleAccess(USER)])
     async def inside_func(token, limit):
+        subscription_controller = SubscriptionController(db)
         return await subscription_controller.get_subscriptions(token, limit)
 
     return await inside_func(credentials.credentials, limit)

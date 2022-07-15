@@ -1,22 +1,20 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
 
-from consts.name_attribute_access_roles import NAME_ATTR_OWNER
 from consts.name_roles import ADMIN, SUPER_ADMIN, USER
-from consts.owner_enum import OwnerEnum
 from controllers.comment_controller import CommentController
 from db.database_handler import DatabaseHandler
+from depends.get_db import get_db
+from handlers.access.owner.any_owner import AnyOwner
+from handlers.access.owner.own_owner import OwnOwner
+from handlers.access.role_access import RoleAccess
 from handlers.access_handler import AccessHandler
 from models.comment_model import CommentInputModel, CommentModel
 from models.http_error import HTTPError
-from models.role_access_model import RoleAccessModel
 
 security = HTTPBearer()
 router = APIRouter(tags=["Comment"])
-database_handler = DatabaseHandler()
-access_handler = AccessHandler(database_handler)
-comment_controller = CommentController(database_handler)
 
 
 @router.post(
@@ -52,11 +50,13 @@ async def post_comment(
     post_key: str,
     comment: CommentInputModel,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
 ):
-    @access_handler.maker_role_access(
-        credentials.credentials, [RoleAccessModel(name=USER)]
-    )
+    access_handler = AccessHandler(db)
+
+    @access_handler.maker_role_access(credentials.credentials, [RoleAccess(USER)])
     async def inside_func(comment, post_key, token):
+        comment_controller = CommentController(db)
         return await comment_controller.post_comment(comment, post_key, token)
 
     return await inside_func(comment, post_key, credentials.credentials)
@@ -95,15 +95,17 @@ async def delete_comment(
     comment_key: str,
     post_key: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
 ):
+    access_handler = AccessHandler(db)
+    comment_controller = CommentController(db)
+
     @access_handler.maker_role_access(
         credentials.credentials,
         [
-            RoleAccessModel(
-                name=SUPER_ADMIN, attributes={NAME_ATTR_OWNER: OwnerEnum.ANY}
-            ),
-            RoleAccessModel(name=ADMIN, attributes={NAME_ATTR_OWNER: OwnerEnum.ANY}),
-            RoleAccessModel(name=USER, attributes={NAME_ATTR_OWNER: OwnerEnum.OWN}),
+            RoleAccess(SUPER_ADMIN, owners=[AnyOwner()]),
+            RoleAccess(ADMIN, owners=[AnyOwner()]),
+            RoleAccess(USER, owners=[OwnOwner()]),
         ],
         False,
     )

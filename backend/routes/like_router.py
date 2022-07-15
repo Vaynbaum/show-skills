@@ -1,25 +1,19 @@
 from typing import List
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
 
 from consts.name_roles import USER
 from controllers.like_controller import LikeController
-from controllers.post_controller import PostController
 from db.database_handler import DatabaseHandler
-from handlers.drive_handler import DriveHandler
+from depends.get_db import get_db
+from handlers.access.role_access import RoleAccess
 from handlers.access_handler import AccessHandler
 from models.http_error import HTTPError
 from models.like_model import LikeModel
 from models.message_model import MessageModel
-from models.role_access_model import RoleAccessModel
 
 security = HTTPBearer()
-database_handler = DatabaseHandler()
-drive_handler = DriveHandler()
-access_handler = AccessHandler(database_handler)
-post_controller = PostController(database_handler, drive_handler)
-like_controller = LikeController(database_handler)
 router = APIRouter(tags=["Like"])
 
 
@@ -55,17 +49,20 @@ router = APIRouter(tags=["Like"])
 async def put_like(
     post_key: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
 ):
-    @access_handler.maker_role_access(
-        credentials.credentials, [RoleAccessModel(name=USER)]
-    )
+    access_handler = AccessHandler(db)
+
+    @access_handler.maker_role_access(credentials.credentials, [RoleAccess(USER)])
     async def inside_func(post_key, token):
+        like_controller = LikeController(db)
         return await like_controller.put_like(post_key, token)
 
     return await inside_func(post_key, credentials.credentials)
 
 
-@router.delete("/",
+@router.delete(
+    "/",
     responses={
         200: {"model": List[LikeModel]},
         400: {
@@ -91,15 +88,18 @@ async def put_like(
             "description": "If an error occurred while verifying access",
         },
     },
-    summary="Like the post",)
+    summary="Like the post",
+)
 async def remove_like(
     post_key: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
 ):
-    @access_handler.maker_role_access(
-        credentials.credentials, [RoleAccessModel(name=USER)]
-    )
+    access_handler = AccessHandler(db)
+
+    @access_handler.maker_role_access(credentials.credentials, [RoleAccess(USER)])
     async def inside_func(post_key, token):
+        like_controller = LikeController(db)
         return await like_controller.remove_like(post_key, token)
 
     return await inside_func(post_key, credentials.credentials)
