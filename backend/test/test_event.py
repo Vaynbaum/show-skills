@@ -247,7 +247,7 @@ async def test_delete_event_by_key_other_user():
 # ----------------------Edit event----------------------
 @pytest.mark.asyncio
 async def test_edit_no_exist_event_admin():
-    headers_test_admin = await get_header(ADMIN_TEST_AUTH)
+    headers_test_admin = await get_header(SUPER_ADMIN_TEST_AUTH)
     async with AsyncClient(app=app, base_url="http://test") as ac:
         response = await ac.put(
             f"/event/edit?event_key={NO_EXIST_EVENT_KEY}",
