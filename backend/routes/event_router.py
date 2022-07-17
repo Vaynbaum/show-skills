@@ -25,7 +25,8 @@ router = APIRouter(tags=["Event"])
         200: {"model": EventInDBModel},
         400: {
             "model": HTTPError,
-            "description": "If the user key is invalid or the event already exists",
+            "description": """If the user key is invalid, the event already exists,
+            the event failed to add or year is invalid""",
         },
         401: {
             "model": HTTPError,
@@ -138,13 +139,21 @@ async def get_events_by_subscription(
         credentials.credentials,
         [RoleAccess(USER)],
     )
-    async def inside_func(token, limit, last_event_key, next_days):
+    async def inside_func(
+        token,
+        next_days,
+        limit,
+        last_event_key,
+    ):
         event_controller = EventController(db)
         return await event_controller.get_events_by_subscription(
-            token, limit, last_event_key, next_days
+            token,
+            next_days,
+            limit,
+            last_event_key,
         )
 
-    return await inside_func(credentials.credentials, limit, last_event_key, next_days)
+    return await inside_func(credentials.credentials, next_days, limit, last_event_key)
 
 
 @router.get(
@@ -255,7 +264,8 @@ async def delete_event(
         200: {"model": MessageModel},
         400: {
             "model": HTTPError,
-            "description": "If the user key is invalid or the event data failed to update",
+            "description": """If the user key is invalid, the event data failed to update
+            or year is invalid""",
         },
         401: {
             "model": HTTPError,
@@ -275,7 +285,7 @@ async def delete_event(
             "description": "If an error occurred while verifying access",
         },
     },
-    summary="Delete a event from the database by key",
+    summary="Updating of event data",
 )
 async def edit_event(
     event_key: str,

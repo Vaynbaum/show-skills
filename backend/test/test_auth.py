@@ -2,9 +2,9 @@ import pytest
 from httpx import AsyncClient
 
 from main import app
-from .data.auth_data import *
-from .data.user_auth_data import *
-from .common import *
+from test.data.auth_data import *
+from test.data.user_auth_data import *
+from test.common import *
 
 
 pytest_plugins = ("pytest_asyncio",)

@@ -1,7 +1,5 @@
-import os
 from typing import Union
 from deta import Deta
-from dotenv import load_dotenv
 
 from db.handlers.event_database_handler import EventDatabaseHandler
 from db.handlers.post_database_handler import PostDatabaseHandler
@@ -31,7 +29,6 @@ from models.user_model import UserInDBModel, UserModelResponse
 
 class DatabaseHandler:
     def __init__(self, deta: Deta):
-        # load_dotenv()
         self.__deta = deta
         self.__user_handler = UserDatabaseHandler(self.__deta)
         self.__role_handler = RoleDatabaseHandler(self.__deta)

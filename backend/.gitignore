@@ -3,5 +3,3 @@ __pycache__
 .deta
 .vscode
 .pytest_cache
-test.py
-test.js

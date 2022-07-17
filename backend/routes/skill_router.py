@@ -131,7 +131,7 @@ async def get_icon_by_name_file(
 @router.get(
     "/all",
     responses={200: {"model": ResponseItems[SkillInDBModel]}},
-    summary="Getting the skill icon by the name of the photo",
+    summary="Getting all skills from the database",
 )
 async def get_all_skills(
     limit: int = 100,
@@ -150,7 +150,8 @@ async def get_all_skills(
         200: {"model": SkillInDBModel},
         400: {
             "model": HTTPError,
-            "description": "If the user key is invalid, skill alreade exists or failed to add skill",
+            "description": """If the user key is invalid, skill alreade exists or 
+            failed to add skill""",
         },
         401: {
             "model": HTTPError,
@@ -217,9 +218,9 @@ async def add_skill_to_myself(
             "description": "If an error occurred while verifying access",
         },
     },
-    summary="Add a skill to yourself",
+    summary="Delete a skill from yourself",
 )
-async def add_skill_to_myself(
+async def delete_skill_to_myself(
     skill_key: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),

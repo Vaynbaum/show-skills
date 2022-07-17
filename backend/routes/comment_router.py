@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
@@ -65,7 +66,7 @@ async def post_comment(
 @router.delete(
     "/",
     responses={
-        200: {"model": CommentModel},
+        200: {"model": List[CommentModel]},
         400: {
             "model": HTTPError,
             "description": """If the user key is invalid or
@@ -89,7 +90,7 @@ async def post_comment(
             "description": "If an error occurred while verifying access",
         },
     },
-    summary="Adding a comment to a post",
+    summary="Deleting a comment to a postt",
 )
 async def delete_comment(
     comment_key: str,

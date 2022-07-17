@@ -1,4 +1,4 @@
-from typing import Union
+from typing import List, Union
 from fastapi import HTTPException
 
 from controllers.user_controller import UserController
@@ -38,7 +38,7 @@ class SubscriptionController:
 
         result = list(
             filter(
-                lambda item: username in item.favorite.username,
+                lambda item: username == item.favorite.username,
                 follower.subscriptions,
             )
         )
@@ -83,7 +83,7 @@ class SubscriptionController:
         follower = await self.__user_controller.get_user_by_token(token)
         res = list(
             filter(
-                lambda item: username in item.favorite.username, follower.subscriptions
+                lambda item: username == item.favorite.username, follower.subscriptions
             )
         )
         if len(res) == 0:
@@ -94,7 +94,7 @@ class SubscriptionController:
         favorite.followers.remove(
             list(
                 filter(
-                    lambda item: follower.username in item.username,
+                    lambda item: follower.username == item.username,
                     favorite.followers,
                 )
             )[0]
@@ -112,7 +112,7 @@ class SubscriptionController:
 
     async def get_subscriptions(
         self, token: str, limit: Union[int, None]
-    ) -> ResponseItems[SubscriptionModel]:
+    ) -> List[SubscriptionModel]:
         """Getting all of my subscriptions
 
         Args:
@@ -120,7 +120,7 @@ class SubscriptionController:
             limit (Union[int, None]): Limit of subscriptions received
 
         Returns:
-            ResponseItems[SubscriptionModel]: Query result
+            List[SubscriptionModel]: Query result
         """        
         user = await self.__user_controller.get_user_by_token(token)
 

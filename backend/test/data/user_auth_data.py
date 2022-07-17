@@ -1,7 +1,9 @@
+SUPER_ADMIN_TEST_USERNAME = "super_admin_test"
 SUPER_ADMIN_TEST_AUTH = {
     "email": "super_admin_test@mail.ru",
     "password": "suteperseadmincretst",
 }
+ADMIN_TEST_USERNAME = "admin_test"
 ADMIN_TEST_AUTH = {
     "email": "admin_test@mail.ru",
     "password": "suteperseadmincretst",

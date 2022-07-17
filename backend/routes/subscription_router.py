@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
@@ -9,7 +10,6 @@ from depends.get_db import get_db
 from handlers.access.role_access import RoleAccess
 from handlers.access_handler import AccessHandler
 from models.http_error import HTTPError
-from models.response_items import ResponseItems
 from models.result_subscribe_model import ResultSubscriptionModel
 from models.subscription_model import SubscriptionModel
 
@@ -112,7 +112,7 @@ async def annul(
 @router.get(
     "/my",
     responses={
-        200: {"model": ResponseItems[SubscriptionModel]},
+        200: {"model": List[SubscriptionModel]},
         400: {
             "model": HTTPError,
             "description": "If the user key is invalid",

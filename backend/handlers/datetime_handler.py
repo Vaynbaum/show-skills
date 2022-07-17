@@ -10,7 +10,7 @@ class DatetimeHandler:
         Returns:
             int: Unix GMT timestamp
         """
-        return timegm(datetime.now().timetuple()) * 1000
+        return timegm(datetime.utcnow().timetuple()) * 1000
 
     def now_next_days(self, days: int) -> int:
         """Getting today's date plus a few days as a Unix GMT timestamp
@@ -21,7 +21,7 @@ class DatetimeHandler:
         Returns:
             int: Unix GMT timestamp
         """
-        return timegm((datetime.now() + timedelta(days=days)).timetuple()) * 1000
+        return timegm((datetime.utcnow() + timedelta(days=days)).timetuple()) * 1000
 
     def convert_to_int(self, date: datetime) -> int:
         """Converting datetime to Unix format by GMT
@@ -44,7 +44,8 @@ class DatetimeHandler:
         Returns:
             datetime: Result
         """
-        return self.convert_to_datetime(date) + delta
+        result = self.convert_to_datetime(date) + delta
+        return result
 
     def convert_to_datetime(self, date: int) -> datetime:
         """Converting Unix format by GMT to datetime
@@ -56,7 +57,7 @@ class DatetimeHandler:
             datetime
         """
         if date > 0:
-            return datetime.fromtimestamp(date / 1000)
+            return datetime.utcfromtimestamp(date / 1000)
         else:
             return datetime(1970, 1, 1) + timedelta(seconds=date / 1000)
 
@@ -67,9 +68,9 @@ class DatetimeHandler:
 
         Args:
             date_to_check (datetime): Date to be checked
-            year_delta_left (int): Left border of the range 
+            year_delta_left (int): Left border of the range
             (- if earlier today and + if later today)
-            year_delta_right (int): The right border of the range 
+            year_delta_right (int): The right border of the range
             (- if earlier today and + if later today)
 
         Returns:

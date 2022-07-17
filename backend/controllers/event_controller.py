@@ -19,6 +19,8 @@ class EventController:
         self.__database_controller = database_controller
         self.__user_controller = UserController(database_controller)
         self.__datetime_handler = DatetimeHandler()
+        self.__allow_year_left = 0
+        self.__allow_year_right = 1
 
     async def create_event(self, event: EventInputModel, token: str) -> EventInDBModel:
         """Creating an event
@@ -28,28 +30,36 @@ class EventController:
             token (str): access token
 
         Raises:
-            HTTPException: If event already exists
+            HTTPException: If event already exists, the event failed to add
+            or year is invalid
 
         Returns:
             EventInDBModel: Created event
         """
+        date = self.__datetime_handler.convert_to_datetime(event.date)
+        if not self.__datetime_handler.check_year_range(
+            date, self.__allow_year_left, self.__allow_year_right
+        ):
+            raise HTTPException(status_code=400, detail="Invalid year")
+
         user = await self.__user_controller.get_user_by_token(token)
         result = await self.__database_controller.get_events_by_query(
-            {
+            query={
                 "name": event.name,
                 "format_event": event.format_event,
                 "place": event.place,
                 "author.key": user.key,
-                "date": self.__datetime_handler.convert_to_int(event.date),
+                "date": event.date,
             }
         )
         if result.count > 0:
             raise HTTPException(status_code=400, detail="Event already exists")
         author = ShortUserModelResponse(**user.dict())
         event = EventInDBModel(**event.dict(), author=author)
-        event.date = self.__datetime_handler.convert_to_int(event.date)
-        await self.__database_controller.create_event(event)
-        return event
+        result = await self.__database_controller.create_event(event)
+        if result is None:
+            raise HTTPException(status_code=400, detail="Failed to add event")
+        return result
 
     async def get_all_events(
         self, limit: int = 1000, last_event_key: str = None
@@ -151,8 +161,7 @@ class EventController:
                 user_keys = [
                     {
                         "author.key": subs.favorite.key,
-                        "date?lte": max_date,
-                        "date?gte": min_date,
+                        "date?r": [min_date, max_date],
                     }
                     for subs in user.subscriptions
                 ]
@@ -161,7 +170,7 @@ class EventController:
                     {"author.key": subs.favorite.key} for subs in user.subscriptions
                 ]
         return await self.__database_controller.get_events_by_query(
-            user_keys, limit, last_event_key
+            limit, last_event_key, user_keys
         )
 
     async def get_event_by_user_key(
@@ -179,7 +188,7 @@ class EventController:
             ResponseItems[EventInDBModel]: Query result
         """
         return await self.__database_controller.get_events_by_query(
-            {"author.key": user_key}, limit, last_event_key
+            limit, last_event_key, {"author.key": user_key}
         )
 
     async def update_event(
@@ -192,11 +201,16 @@ class EventController:
             event_key (str)
 
         Raises:
-            HTTPException: If the event data failed to update
+            HTTPException: If the event data failed to update or year is invalid
 
         Returns:
             MessageModel
         """
+        date = self.__datetime_handler.convert_to_datetime(event.date)
+        if not self.__datetime_handler.check_year_range(
+            date, self.__allow_year_left, self.__allow_year_right
+        ):
+            raise HTTPException(status_code=400, detail="Invalid year")
         try:
             await self.__database_controller.update_event_by_key(event, event_key)
             return MessageModel(message="Editing successful")

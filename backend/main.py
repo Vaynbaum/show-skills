@@ -19,18 +19,11 @@ from routes import (
 
 
 load_dotenv()
-app = FastAPI(
-    title=os.getenv("PROJECT_NAME"),
-    description="SkillShow API 👩‍🏭",
-    contact={
-        "name": "skill-show",
-        "email": "mr.vaynbaum@mail.ru",
-    },
-)
+app = FastAPI(title=os.getenv("PROJECT_NAME"), description="👩‍🍳👩‍🏭👨‍🎨👨‍💻👨‍🔬👨‍🔧")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.getenv("CORS_URL")],
+    allow_origins=os.getenv("CORS_URL"),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

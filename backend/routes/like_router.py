@@ -88,7 +88,7 @@ async def put_like(
             "description": "If an error occurred while verifying access",
         },
     },
-    summary="Like the post",
+    summary="Remove the like to the post",
 )
 async def remove_like(
     post_key: str,

@@ -32,7 +32,8 @@ router = APIRouter(tags=["Role"])
         },
         403: {
             "model": HTTPError,
-            "description": "If authentication failed, invalid authentication credentials or no access rights to this method",
+            "description": """If authentication failed, invalid authentication credentials or
+            no access rights to this method""",
         },
         500: {
             "model": HTTPError,
@@ -72,7 +73,8 @@ async def get_all_rolles_that_can_assign(
         },
         403: {
             "model": HTTPError,
-            "description": "If authentication failed, invalid authentication credentials or no access rights to this method",
+            "description": """If authentication failed, invalid authentication credentials 
+            or no access rights to this method""",
         },
         404: {
             "model": HTTPError,

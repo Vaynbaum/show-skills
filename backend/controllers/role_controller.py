@@ -41,11 +41,11 @@ class RoleController:
         if role is None:
             raise HTTPException(status_code=404, detail="Role not found")
 
-        role = RoleModelResponse(**role.dict())
+        response_role = RoleModelResponse(**role.dict())
         try:
             await self.__database_controller.update_simple_data_to_user(
                 {
-                    "role": role.dict(),
+                    "role": response_role.dict(),
                     "role_key": role.key,
                 },
                 user_key,
@@ -53,4 +53,4 @@ class RoleController:
         except UpdateUserDataException as e:
             
             raise HTTPException(status_code=400, detail=f"{e}")
-        return role
+        return response_role

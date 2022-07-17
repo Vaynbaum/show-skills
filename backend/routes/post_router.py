@@ -226,6 +226,10 @@ async def delete_post_by_key(
             "description": """If authentication failed, invalid authentication credentials 
             or no access rights to this method""",
         },
+        404: {
+            "model": HTTPError,
+            "description": "If the post is not found",
+        },
         500: {
             "model": HTTPError,
             "description": "If an error occurred while verifying access",
@@ -243,7 +247,16 @@ async def edit_post(
     access_handler = AccessHandler(db)
     post_controller = PostController(db, drive)
 
-    @access_handler.maker_role_access(credentials.credentials, [RoleAccess(USER)])
+    @access_handler.maker_role_access(
+        credentials.credentials,
+        [
+            RoleAccess(USER, owners=[OwnOwner()]),
+        ],
+        False,
+    )
+    @access_handler.maker_owner_access(
+        await post_controller.get_author_key_by_post_key(post_key),
+    )
     async def inside_func(post, post_key):
         return await post_controller.update_post(post, post_key)
 

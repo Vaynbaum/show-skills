@@ -2,9 +2,9 @@ import pytest
 from httpx import AsyncClient
 
 from main import app
-from .data.user_auth_data import *
-from .data.user_data import *
-from .common import *
+from test.data.user_auth_data import *
+from test.data.user_data import *
+from test.common import *
 
 pytest_plugins = ("pytest_asyncio",)
 
@@ -205,8 +205,8 @@ async def test_update_user():
     
 @pytest.mark.asyncio
 async def test_update_user_invalid_year():
+    headers = await get_header(USER_TEST_AUTH)
     async with AsyncClient(app=app, base_url="http://test") as ac:
-        headers = await get_header(USER_TEST_AUTH)
         response = await ac.put(
             f"/user/additional_data",
             headers=headers,

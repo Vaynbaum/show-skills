@@ -98,7 +98,7 @@ class CommentController:
         comment = CommentModel(
             **comment.dict(),
             author=ShortUserModelResponse(**user.dict()),
-            number_comment=key,
+            key=key,
             date_create=self.__datetime_handler.now(),
         )
 
@@ -111,7 +111,7 @@ class CommentController:
     async def get_author_key_by_comment_key(
         self, comment_key: str, post_key: str
     ) -> str:
-        """_summary_
+        """Getting the comment author's key
 
         Args:
             comment_key (str)

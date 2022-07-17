@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
@@ -59,7 +60,7 @@ async def add_link(
 @router.delete(
     "/remove",
     responses={
-        200: {"model": MessageModel},
+        200: {"model": List[LinkModel]},
         400: {
             "model": HTTPError,
             "description": """If the user key is invalid or the link failed to delete""",

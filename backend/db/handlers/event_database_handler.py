@@ -20,13 +20,13 @@ class EventDatabaseHandler:
 
         Args:
             limit (int, optional): Limit of events received. Defaults to 1000.
-            last_event_key (str, optional): The last event key received in 
+            last_event_key (str, optional): The last event key received in
             the previous request. Defaults to None.
             query (dict, optional): Choosing criteria. Defaults to None.
 
         Returns:
             ResponseItems[EventInDBModel]: Query result
-        """  
+        """
         result = await self.__event_db.fetch(query, limit=limit, last=last_event_key)
         return ResponseItems[EventInDBModel](
             count=result.count, last=result.last, items=result.items
@@ -43,11 +43,12 @@ class EventDatabaseHandler:
             to the database otherwise None
         """
         try:
+            expire_at = self.__datetime_handler.add_timedelta(
+                event.date, timedelta(minutes=20)
+            )
             event = await self.__event_db.put(
                 data=event.dict(),
-                expire_at=self.__datetime_handler.add_timedelta(
-                    event.date, timedelta(minutes=20)
-                ),
+                expire_at=self.__datetime_handler.convert_to_int(expire_at),
             )
             return EventInDBModel(**event)
         except:

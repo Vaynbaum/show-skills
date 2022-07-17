@@ -1,10 +1,13 @@
 from typing import Union
 from pydantic import BaseModel
 from datetime import datetime, timedelta
+from handlers.datetime_handler import DatetimeHandler
 
 
 from models.short_user_model_response import ShortUserModelResponse
 from consts.name_format_event import ONLINE
+
+datetime_handler = DatetimeHandler()
 
 
 class EventInputModel(BaseModel):
@@ -17,7 +20,7 @@ class EventInputModel(BaseModel):
         schema_extra = {
             "example": {
                 "name": "Вебинар по Angular",
-                "date": datetime.now() + timedelta(2),
+                "date": datetime_handler.now_next_days(2),
                 "format_event": ONLINE,
                 "place": {"name_platform": "VK", "URL": "https://example"},
             }
