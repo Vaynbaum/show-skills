@@ -30,4 +30,3 @@ class EventInputModel(BaseModel):
 class EventInDBModel(EventInputModel):
     key: Union[str, None]
     author: ShortUserModelResponse
-    date: int
