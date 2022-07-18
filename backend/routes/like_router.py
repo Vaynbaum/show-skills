@@ -17,7 +17,7 @@ security = HTTPBearer()
 router = APIRouter(tags=["Like"])
 
 
-@router.put(
+@router.post(
     "/",
     responses={
         200: {"model": MessageModel},

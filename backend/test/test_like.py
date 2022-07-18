@@ -13,7 +13,7 @@ pytest_plugins = ("pytest_asyncio",)
 async def test_add_like_to_no_exist_post():
     headers = await get_header(USER_TEST_AUTH)
     async with AsyncClient(app=app, base_url="http://test") as ac:
-        response = await ac.put(f"/like/?post_key={NO_EXIST_POST_KEY}", headers=headers)
+        response = await ac.post(f"/like/?post_key={NO_EXIST_POST_KEY}", headers=headers)
     assert response.status_code == 404
     result = response.json()
     assert "detail" in result
@@ -29,7 +29,7 @@ async def test_add_remove_like_to_post():
         response = await ac.post("/post/create", json=POST_DATA, headers=headers)
         post_key = response.json()["key"]
 
-        response = await ac.put(f"/like/?post_key={post_key}", headers=headers)
+        response = await ac.post(f"/like/?post_key={post_key}", headers=headers)
 
     assert response.status_code == 200
     result = response.json()
