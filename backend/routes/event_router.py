@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
 
@@ -85,8 +85,8 @@ async def create_event(
 )
 async def get_all_events(
     credentials: HTTPAuthorizationCredentials = Security(security),
-    limit: int = 1000,
-    last_event_key: str = None,
+    limit: int = Query(default=1000),
+    last_event_key: str = Query(default=None),
     db: DatabaseHandler = Depends(get_db),
 ):
     access_handler = AccessHandler(db)
@@ -127,9 +127,9 @@ async def get_all_events(
     summary="Getting events by subscriptions",
 )
 async def get_events_by_subscription(
-    next_days: int = None,
-    limit: int = 1000,
-    last_event_key: str = None,
+    next_days: int = Query(default=None),
+    limit: int = Query(default=1000),
+    last_event_key: str = Query(default=None),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
 ):
@@ -181,9 +181,9 @@ async def get_events_by_subscription(
     summary="Getting user events",
 )
 async def get_events_by_user(
-    key: str,
-    limit: int = 1000,
-    last_event_key: str = None,
+    key: str = Query(),
+    limit: int = Query(default=1000),
+    last_event_key: str = Query(default=None),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
 ):
@@ -233,7 +233,7 @@ async def get_events_by_user(
     summary="Delete a event from the database by key",
 )
 async def delete_event(
-    key: str,
+    key: str = Query(),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
 ):
@@ -288,8 +288,8 @@ async def delete_event(
     summary="Updating of event data",
 )
 async def edit_event(
-    event_key: str,
     event: EventInputModel,
+    event_key: str = Query(),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
 ):

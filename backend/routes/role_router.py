@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
 
@@ -88,8 +88,8 @@ async def get_all_rolles_that_can_assign(
     summary="Assign a role to a user",
 )
 async def assign_role(
-    role_key: str,
-    user_key: str,
+    role_key: str = Query(),
+    user_key: str = Query(),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
 ):

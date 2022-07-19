@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
 
@@ -85,10 +85,10 @@ async def post_suggestion(
     summary="Getting all suggestions from the database",
 )
 async def get_all_suggestions(
-    readed: bool = False,
-    completed: bool = False,
-    limit: int = 1000,
-    last_key: str = None,
+    readed: bool = Query(default=False),
+    completed: bool = Query(default=False),
+    limit: int = Query(default=1000),
+    last_key: str = Query(default=None),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
 ):
@@ -134,7 +134,7 @@ async def get_all_suggestions(
 )
 async def tick_suggestion(
     suggestion: SuggestionTickModel,
-    suggestion_key: str,
+    suggestion_key: str = Query(),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
 ):

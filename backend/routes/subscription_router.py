@@ -134,7 +134,7 @@ async def annul(
     summary="Getting all of my subscriptions",
 )
 async def get_my_subscription(
-    limit: int = None,
+    limit: int = Query(default=None),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
 ):

@@ -1,26 +1,29 @@
-import os
 import io
 from typing import BinaryIO, Union
 from deta import Deta
 from deta.drive import DriveStreamingBody
-from dotenv import load_dotenv
 from fastapi import UploadFile
 from fastapi.responses import StreamingResponse
 from PIL import Image
 
 from exceptions.get_file_exception import GetFileException
 from exceptions.get_photo_exception import GetPhotoException
+from exceptions.get_text_exception import GetTextException
 from exceptions.upload_file_exception import UploadFileException
 from exceptions.upload_photo_exception import UploadPhotoException
+from exceptions.upload_text_exception import UploadTextException
 
 
 class DriveHandler:
     def __init__(self, deta: Deta):
-        load_dotenv()
         self.__deta = deta
 
     def __upload_file(
-        self, name_file: str, name_drive: str, file: Union[BinaryIO, bytes]
+        self,
+        name_file: str,
+        name_drive: str,
+        file: Union[BinaryIO, bytes, str],
+        content_type: str = None,
     ) -> str:
         """Uploading files
 
@@ -28,6 +31,7 @@ class DriveHandler:
             name_file (str)
             name_drive (str): Name of the folder for files
             file (Union[BinaryIO, bytes])
+            content_type (str, optional): Defaults to None.
 
         Raises:
             UploadFileException: If the file could not be uploaded
@@ -36,8 +40,9 @@ class DriveHandler:
             str: The name of the directory with the file name
         """
         items = self.__deta.Drive(name_drive)
+        print(name_file, name_drive, file)
         try:
-            return items.put(name_file, file)
+            return items.put(name_file, file, content_type=content_type)
         except Exception as e:
 
             raise UploadFileException(f"{e}")
@@ -146,6 +151,66 @@ class DriveHandler:
         except UploadFileException as e:
 
             raise UploadPhotoException(f"{e}")
+
+    def upload_text(
+        self,
+        name_file: str,
+        name_directory: str,
+        text: str,
+        content_type: str = None,
+    ) -> str:
+        """Uploading an image to disk
+
+        Args:
+            name_file (str)
+            name_directory (str)
+            text (str)
+            content_type (str, optional): Defaults to None.
+
+        Raises:
+            UploadTextException: If the upload failed
+
+        Returns:
+            str: The name of the directory and file
+        """
+
+        try:
+            return self.__upload_file(
+                f"{name_directory}/{name_file}", "text", text, content_type
+            )
+        except UploadFileException as e:
+
+            raise UploadTextException(f"{e}")
+
+    def get_text(
+        self, name_directory: str, name_file: str
+    ) -> Union[StreamingResponse, None]:
+        """Getting a text by name and directory
+
+        Args:
+            name_directory (str)
+            name_file (str)
+
+        Raises:
+            GetPhotoException: If the file could not be retrieved
+
+        Returns:
+            Union[StreamingResponse, None]: The resulting text
+        """
+        extension_file = self.__get_extension(name_file)
+
+        try:
+            result = self.__get_file(f"{name_directory}/{name_file}", "text")
+            return (
+                StreamingResponse(
+                    result.iter_chunks(), media_type=f"text/{extension_file}"
+                )
+                if result is not None
+                else None
+            )
+        except GetFileException as e:
+
+            raise GetTextException(f"{e}")
 
     def get_photo(
         self, name_directory: str, name_file: str

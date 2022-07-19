@@ -1,4 +1,4 @@
-class UploadFileException(Exception):
+class UploadTextException(Exception):
     def __init__(self, message):
         self.message = message
 

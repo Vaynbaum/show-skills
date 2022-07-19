@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, Path
+from fastapi import APIRouter, Depends, Query, UploadFile, Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
 
@@ -62,7 +62,7 @@ async def create_post(
 
 
 @router.post(
-    "/upload_image",
+    "/upload/image",
     responses={
         200: {"model": str},
         400: {
@@ -123,13 +123,74 @@ async def get_image_by_name(
 
 
 @router.get(
+    "/content/{name_content}",
+    responses={
+        200: {"description": "File in the format *StreamingResponse*"},
+        400: {
+            "model": HTTPError,
+            "description": "if the file could not be retrieved",
+        },
+    },
+    summary="Getting the content by the name",
+)
+async def get_content_by_name(
+    name_content: str = Path(example="post_uml_zgqeuipptbrjwhd.html"),
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
+):
+    post_controller = PostController(db, drive)
+    return post_controller.get_content(name_content)
+
+
+@router.post(
+    "/upload/content",
+    responses={
+        200: {"model": str},
+        400: {
+            "model": HTTPError,
+            "description": "If the user key is invalid or the upload failed",
+        },
+        401: {
+            "model": HTTPError,
+            "description": "If the token is invalid, expired or scope is invalid",
+        },
+        403: {
+            "model": HTTPError,
+            "description": """If authentication failed, invalid authentication credentials 
+            or no access rights to this method""",
+        },
+        500: {
+            "model": HTTPError,
+            "description": "If an error occurred while verifying access",
+        },
+    },
+    summary="Uploading an post content to disk",
+)
+async def upload_content_to_post(
+    content_html: str = Query(example="<h1>Пример</h1>"),
+    name_post: str = Query(example="Пример названия поста"),
+    credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
+    drive: DriveHandler = Depends(get_drive),
+):
+    access_handler = AccessHandler(db)
+
+    @access_handler.maker_role_access(credentials.credentials, [RoleAccess(USER)])
+    async def inside_func(content_html, name_post):
+        post_controller = PostController(db, drive)
+        return post_controller.upload_content(content_html, name_post)
+
+    return await inside_func(content_html, name_post)
+
+
+@router.get(
     "/all",
     responses={200: {"model": ResponseItems[PostInDBModel]}},
     summary="Getting all posts from the database",
 )
 async def get_all_posts(
-    limit: int = 100,
-    last_user_key: str = None,
+    limit: int = Query(default=100),
+    last_user_key: str = Query(default=None),
     db: DatabaseHandler = Depends(get_db),
     drive: DriveHandler = Depends(get_drive),
 ):
@@ -143,9 +204,9 @@ async def get_all_posts(
     summary="Getting posts by skill name from the database",
 )
 async def get_posts_by_skill(
-    name_skill: str,
-    limit: int = 100,
-    last_user_key: str = None,
+    name_skill: str = Query(example="Питон"),
+    limit: int = Query(default=100),
+    last_user_key: str = Query(default=None),
     db: DatabaseHandler = Depends(get_db),
     drive: DriveHandler = Depends(get_drive),
 ):
@@ -182,7 +243,7 @@ async def get_posts_by_skill(
     summary="Deleting a post by key",
 )
 async def delete_post_by_key(
-    post_key: str,
+    post_key: str = Query(),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
     drive: DriveHandler = Depends(get_drive),
@@ -239,7 +300,7 @@ async def delete_post_by_key(
 )
 async def edit_post(
     post: PostInputModel,
-    post_key: str,
+    post_key: str = Query(),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
     drive: DriveHandler = Depends(get_drive),

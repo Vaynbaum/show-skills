@@ -134,8 +134,8 @@ async def get_icon_by_name_file(
     summary="Getting all skills from the database",
 )
 async def get_all_skills(
-    limit: int = 100,
-    last_skill_key: str = None,
+    limit: int = Query(default=100),
+    last_skill_key: str = Query(default=None),
     db: DatabaseHandler = Depends(get_db),
     drive: DriveHandler = Depends(get_drive),
 ):
@@ -174,7 +174,7 @@ async def get_all_skills(
     summary="Add a skill to yourself",
 )
 async def add_skill_to_myself(
-    skill_key: str,
+    skill_key: str = Query(),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
     drive: DriveHandler = Depends(get_drive),
@@ -221,7 +221,7 @@ async def add_skill_to_myself(
     summary="Delete a skill from yourself",
 )
 async def delete_skill_to_myself(
-    skill_key: str,
+    skill_key: str = Query(),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
     drive: DriveHandler = Depends(get_drive),

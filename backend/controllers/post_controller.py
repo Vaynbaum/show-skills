@@ -29,7 +29,8 @@ class PostController:
         self.__driver_controller = driver_controller
         self.__user_controller = UserController(database_controller)
         self.__generator_handler = GeneratorHandler()
-        self.__directory = "post/photo"
+        self.__directory_photo = "post/photo"
+        self.__directory_content = "post/content"
         self.__url = os.getenv("URL")
         self.__datetime_handler = DatetimeHandler()
 
@@ -71,12 +72,40 @@ class PostController:
         Returns:
             str: Photo URL
         """
-        LENGTH_RAND_STR = 8
+        LENGTH_RAND_STR = 15
         rand_str = self.__generator_handler.generate_random_combination(LENGTH_RAND_STR)
         name_file = f"{rand_str}_{file.filename}"
         try:
             name = self.__driver_controller.upload_photo(
-                name_file, self.__directory, file
+                name_file, self.__directory_photo, file
+            )
+            return f"{self.__url}/{name}"
+        except UploadPhotoException as e:
+
+            raise HTTPException(status_code=400, detail=f"{e}")
+
+    def upload_content(self, content: str, name_post: str) -> str:
+        """Uploading an post content to disk
+
+        Args:
+            content (str)
+            name_post (str)
+
+        Raises:
+            HTTPException: If the upload failed
+
+        Returns:
+            str: HTML content URL
+        """
+        LENGTH_RAND_STR = 15
+        rand_str = self.__generator_handler.generate_random_combination(LENGTH_RAND_STR)
+        name_file = f"post_{name_post}_{rand_str}.html"
+        try:
+            name = self.__driver_controller.upload_text(
+                name_file,
+                self.__directory_content,
+                content.encode("utf-8"),
+                "text/html",
             )
             return f"{self.__url}/{name}"
         except UploadPhotoException as e:
@@ -96,7 +125,29 @@ class PostController:
             Union[StreamingResponse, None]: The resulting image
         """
         try:
-            return self.__driver_controller.get_photo(self.__directory, name_image)
+            return self.__driver_controller.get_photo(
+                self.__directory_photo, name_image
+            )
+        except GetPhotoException as e:
+
+            raise HTTPException(status_code=400, detail=f"{e}")
+
+    def get_content(self, name_content: str) -> Union[StreamingResponse, None]:
+        """Getting the content by the name
+
+        Args:
+            name_content (str)
+
+        Raises:
+            HTTPException: If the file could not be retrieved
+
+        Returns:
+            Union[StreamingResponse, None]: The resulting content
+        """
+        try:
+            return self.__driver_controller.get_text(
+                self.__directory_content, name_content
+            )
         except GetPhotoException as e:
 
             raise HTTPException(status_code=400, detail=f"{e}")
@@ -167,7 +218,7 @@ class PostController:
         Args:
             post (PostInputModel): Input post data
 
-            post_key (str): 
+            post_key (str):
 
         Raises:
             HTTPException: If the post data update was not successful

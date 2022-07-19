@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
 
@@ -48,8 +48,8 @@ router = APIRouter(tags=["Comment"])
     summary="Adding a comment to a post",
 )
 async def post_comment(
-    post_key: str,
     comment: CommentInputModel,
+    post_key: str = Query(),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
 ):
@@ -93,8 +93,8 @@ async def post_comment(
     summary="Deleting a comment to a postt",
 )
 async def delete_comment(
-    comment_key: str,
-    post_key: str,
+    comment_key: str = Query(),
+    post_key: str = Query(),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
 ):

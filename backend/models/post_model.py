@@ -10,14 +10,14 @@ from models.short_user_model_response import ShortUserModelResponse
 
 class PostInputModel(BaseModel):
     name: str
-    content_html: str
+    url_content: str
     skill: SkillInDBModel
 
     class Config:
         schema_extra = {
             "example": {
                 "name": "UML диаграммы",
-                "content_html": "<p>уц ац цуау цуа уц wef e<img alt='' src='http://localhost:8000/post/photo/qxyzxrtz_%D0%91%D0%B0%D0%B7%D0%B0%D0%94%D0%B0%D0%BD%D0%BD%D1%8B%D1%85.png' style='width:567px' /></p>",
+                "url_content": "http://localhost:8000/post/content/post_uml_zgqeuipptbrjwhd.html",
                 "skill": {
                     "key": "3ed34r43f3",
                     "name": "UML-диаграммы",

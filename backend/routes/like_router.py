@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Security
 
@@ -47,7 +47,7 @@ router = APIRouter(tags=["Like"])
     summary="Like the post",
 )
 async def put_like(
-    post_key: str,
+    post_key: str = Query(),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
 ):
@@ -91,7 +91,7 @@ async def put_like(
     summary="Remove the like to the post",
 )
 async def remove_like(
-    post_key: str,
+    post_key: str = Query(),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
 ):

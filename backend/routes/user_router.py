@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Path, Security
+from fastapi import APIRouter, Depends, Path, Query, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from consts.name_roles import ADMIN, SUPER_ADMIN, USER
@@ -45,8 +45,8 @@ router = APIRouter(tags=["User"])
 )
 async def get_all_users(
     credentials: HTTPAuthorizationCredentials = Security(security),
-    limit: int = 1000,
-    last_user_key: str = None,
+    limit: int = Query(default=1000),
+    last_user_key: str = Query(default=None),
     db: DatabaseHandler = Depends(get_db),
 ):
     access_handler = AccessHandler(db)
@@ -102,7 +102,7 @@ async def get_user_by_username(
     summary="Deleting a user by key",
 )
 async def delete_user_by_key(
-    key: str,
+    key: str = Query(),
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
 ):
