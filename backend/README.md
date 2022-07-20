@@ -194,7 +194,7 @@ The user can also `delete or edit` the event. You can also `get a list of events
 # Technologies in the project
 The application is written using the FastAPI web framework. 
 Deta Base, which is NoSQL, was chosen for the database, and Deta Drive cloud storage was chosen for storing files.
-Functional tests of API methods are written using the Py test environment.
+Functional tests of API methods are written using the Pytest environment.
 
 ![image](https://user-images.githubusercontent.com/78900834/180003050-423c586f-05da-4d9d-98c9-c5ae4d419edf.png)
 
