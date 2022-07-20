@@ -25,7 +25,7 @@ The system assumes the presence of several roles: `super-administrator`, `admini
 <table cellpadding="5" border="1">
     <thead>
         <tr>
-            <th>Object\Role</th>
+            <th>Object \ Role</th>
             <th>Super Administrator</th>
             <th>Administrator</th>
             <th>User</th>
@@ -106,26 +106,87 @@ The system assumes the presence of several roles: `super-administrator`, `admini
     </tbody>
 </table>
 
+The implementation of the role-based access system is performed using decorating methods that can be "hung" on one or another API method. 
+These methods can be used `as one at a time or combined`. The API method will be called only if all access checks are successfully passed.
+The creator of the decorator can get the parameters necessary for verification.
+
+Example of a method for creating decorators
+
+**File: access_handler.py**
+```python
+def maker_role_access(
+        self,
+        token: str = None,
+        roles: list[RoleAccess] = None,
+        is_lact_decorator: bool = True,
+    ):
+        """Creating a user access decorator by role"""
+
+        def decorator_role_access(func):
+            async def wrapped_role_access(*args, **kwargs):
+                kwargs, user, role = await self.__get_role_user_access(
+                    kwargs, token, roles
+                )
+                # If the role is found, then call method
+                kwargs = self.__clean_temp_vars(is_lact_decorator, kwargs)
+                return await func(*args, **kwargs)
+
+            return wrapped_role_access
+
+        return decorator_role_access
+```
+
+Usage example
+
+**File: user_router.py**
+```python
+@router.delete("/", summary="Deleting a user by key")
+async def delete_user_by_key(
+    key: str = Query(),
+    credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
+):
+    access_handler = AccessHandler(db)
+
+    @access_handler.maker_role_access(
+        credentials.credentials,
+        [
+            RoleAccess(SUPER_ADMIN, owners=[AnyOwner()]),
+            RoleAccess(ADMIN, owners=[OwnOwner()]),
+            RoleAccess(USER, owners=[OwnOwner()]),
+        ],
+        False,
+    )
+    @access_handler.maker_owner_access(key)
+    async def inside_func(key):
+        user_controller = UserController(db)
+        event_controller = EventController(db)
+        await event_controller.delete_event_by_user(key)
+        return await user_controller.delete_user_by_key(key)
+
+    return await inside_func(key)
+```
+
 # Methods on user account data
-To get information about users, there are two API methods, one of which returns the data of all accounts stored in the database 
-and is intended for the administration of the system. The second method allows you to get the data of one user by username or a unique alias. 
-The account is deleted from the application using the account key in the database. 
-There is a separate endpoint API for changing optional user data, such as date of birth and place of residence.
-The date of birth is transmitted as a number in the form of the number of milliseconds since the beginning of the Unix epoch GMT.
-For a successful change, the user's age cannot be less than 14 years and not more than 100.
+To get information about users, there are two API methods, one of which returns the data of `all accounts` stored in the database 
+and is intended for the administration of the system. The second method allows you to `get the data of one user by username`. 
+The account is `deleted` from the application using the `account key` in the database. 
+There is a endpoint API for `changing addional user data`, such as `date of birth` and `place of residence`.
+The date of birth is passed as the `number of milliseconds` since the beginning of the `Unix epoch GMT`.
+For a `successful` change, the user's `age` cannot be `less than 14 years and not more than 100`.
 
 # Methods on skills
-For various suggestions from users to the administration, for example, to add a new skill, there is a separate API method. 
-Administrators can then review these proposals and mark them as read or completed. 
+For various `suggestions` from users to the administration, for example, to add a new skill, there is a API method. 
+Administrators can then `view` these suggestions and `tick` them as `read or completed`. 
 
-Skills can only be created by the administration of the application, and everyone can view them.
-Also, according to the skill key, they can be added to or deleted by the users of the application, thereby marking the competencies they own.
+`Skills` can only be `created` by the administration of the application, and everyone can view them.
+Also, according to the skill key, they can be `added to or deleted` by the users of the application, thereby marking the competencies they own.
 
 # Methods on posts and events
-When creating posts, images are uploaded separately and added to the content by URL. 
-The content of the post itself is loaded separately as a string and stored as an html file. 
-The post only stores a link to the file. The methods allow you to get all the posts and posts by the name of the skill presented in them. 
-Also, the post can be deleted by the creator and the administration of the application, and only the author can edit it.
+When `creating posts`, `images` are uploaded separately and `added` to the content by `URL`. 
+The `content` of the post itself is loaded separately as a string and stored as an html file. 
+The post only `stores a link to the file`. The methods allow you to `get all` the posts and posts `by the name of the skill` presented in them. 
+Also, the post can be `deleted` by the creator and the administration of the application, and only the author can `edit` it.
 
-The user can inform subscribers about the upcoming event using events. The administration can get all the events and delete them. 
-The user can also delete or edit the event. You can also get a list of events of a single user.
+The user can `inform subscribers` about the upcoming event `using events`. The administration can `get all` the events and `delete` them. 
+The user can also `delete or edit` the event. You can also `get a list of events` of a single user.
