@@ -199,3 +199,17 @@ Functional tests of API methods are written using the Py test environment.
 ![image](https://user-images.githubusercontent.com/78900834/180003050-423c586f-05da-4d9d-98c9-c5ae4d419edf.png)
 
 # How to use
+Register on the <a href="https://www.deta.sh/">Deta Cloud</a> platform
+
+Changing the values of the fields in the **.env** file (be sure to fill in **DETA_PROJECT_KEY** and **APP_SECRET_STRING**).
+
+Install requirements
+>pip install -r requirements.txt
+
+Start application
+>uvicorn main:app
+
+Open your browser at http://127.0.0.1:8000
+
+Run tests
+>pytest
