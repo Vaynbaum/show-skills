@@ -1,0 +1,33 @@
+.title {
+  font-family: MontserratBold;
+  align-items: center;
+  text-align: center;
+  color: #28c1e7;
+  font-weight: 700;
+  font-size: 35px;
+}
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 2vw;
+  margin-top:50px
+}
+.item {
+  /* background: #aaa; */
+  padding: auto;
+}
+.word {
+  font-family: MontserratBold;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 10px;
+  color: #28c1e7;
+  font-weight: 700;
+  font-size: 30px;
+}
+.txt {
+  font-family: MontserratMedium;
+  margin-bottom: 5px;
+  cursor: pointer;
+}

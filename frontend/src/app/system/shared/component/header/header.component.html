@@ -1,0 +1,14 @@
+<div class="block">
+  <div class="title-block">
+    <img class="logo" src="../../../../../assets/images/logo.png" />
+    <div class="title">ShowSkills</div>
+  </div>
+  <div class="links">
+    <a class="link-txt" [routerLink]="['/', 'home']" [class.active]="isCurrentLink('home')">Главная</a>
+    <a class="link-txt" [routerLink]="['/', 'topic']" [class.active]="isCurrentLink('topic')">По тематике</a>
+  </div>
+  <div class="profile">
+    <div class="name" [routerLink]="['/', 'profile']">Rafora</div>
+    <img class="avatar" src="../../../../../assets/images/profile.png" />
+  </div>
+</div>

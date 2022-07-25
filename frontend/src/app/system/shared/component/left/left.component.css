@@ -1,0 +1,91 @@
+.navigation {
+  position: relative;
+  width: 75px;
+  height: 840px;
+  background: #f2b705;
+  border-radius: 35px;
+  box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+  /* left:10px; */
+}
+
+.navigation ul {
+  position: absolute;
+  top: 15px;
+  left:0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  left:35px;
+}
+.navigation ul li {
+  position: relative;
+  list-style: none;
+  width: 1px;
+  height: calc(700px/10);
+  z-index: 1;
+}
+.navigation ul li a {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+  color: #333;
+  font-weight: 500;
+}
+.navigation ul li a .icon {
+  position: relative;
+  display: block;
+  line-height: 17px;
+  text-align: center;
+  transition: 0.5s;
+  cursor: pointer;
+}
+.navigation ul li a .icon i {
+  font-size: 24px;
+}
+.navigation ul li a .title {
+  position: absolute;
+  top:50%;
+  left: 70px;
+  background: #f26835;
+  transform: translateY(-50%);
+  padding: 5px 10px;
+  border-radius: 6px;
+  transition: 0.5s;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  opacity: 0;
+  visibility: hidden;
+}
+.navigation ul li:hover a .title {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-25px) translateY(-50%);
+}
+.navigation ul li a .title::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #f26835;
+  left:-8px;
+  top:46%;
+  transform: rotate(45deg) translateY(-50%);
+  border-radius: 2px;
+}
+.btn {
+  border-radius: 30px;
+  width: 50px;
+  height: 30px;
+  border: none;
+  font-size: 15px;
+  margin-left: 12px;
+  /* margin-top: 15px; */
+  cursor: pointer;
+  background-color: #fff;
+  text-transform: uppercase;
+  font-weight: 700;
+  bottom: 20px;
+  position: absolute;
+}

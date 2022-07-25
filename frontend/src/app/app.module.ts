@@ -1,21 +1,20 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { CKEditorModule } from 'ng2-ckeditor';
-import { FormsModule } from '@angular/forms';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { TestEditorComponent } from './test-editor/test-editor.component';
+import { LogModule } from './log/log.module';
+import { SystemModule } from './system/system.module';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    TestEditorComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
+    LogModule,
     AppRoutingModule,
-    FormsModule,
-    CKEditorModule
+    SystemModule
   ],
   providers: [],
   bootstrap: [AppComponent]

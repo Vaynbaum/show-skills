@@ -1,0 +1,58 @@
+.block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title-block {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+.title {
+  font-family: MontserratBold;
+  font-size:36px;
+  font-weight:bold;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  column-gap: 30px;
+  margin-top: 5px;
+  margin-left: 615px;
+}
+.link-txt {
+  font-family: MontserratMedium;
+  font-size:20px;
+  color: black;
+}
+a {
+  text-decoration: none;
+}
+.active {
+  text-decoration: underline;
+  font-size:22px;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+}
+.name {
+  margin-right: 15px;
+  font-family: MontserratMedium;
+  font-size:25px;
+  cursor: pointer;
+  color: #28c1e7;
+  font-weight:bold;
+}
+
+.logo {
+  margin-left: 25px;
+  margin-right: 15px;
+}
+.avatar {
+  margin-right: 25px;
+}
+

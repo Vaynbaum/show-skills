@@ -1,0 +1,12 @@
+.block {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+}
+.container {
+  padding: 0 250px;
+  text-align: center;
+  font-family: MontserratMedium;
+}
