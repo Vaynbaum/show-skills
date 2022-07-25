@@ -9,6 +9,8 @@ import { TopicComponent } from './topic/topic.component';
 import { ProfileComponent } from './profile/profile.component';
 import { LeftComponent } from './shared/component/left/left.component';
 import { RightComponent } from './shared/component/right/right.component';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -19,12 +21,13 @@ import { RightComponent } from './shared/component/right/right.component';
     TopicComponent,
     ProfileComponent,
     LeftComponent,
-    RightComponent
+    RightComponent,
   ],
   imports: [
-    BrowserModule,
-    SystemRoutingModule
- ],
+    CommonModule,
+    SystemRoutingModule,
+    ReactiveFormsModule,
+    FormsModule,
+  ],
 })
-
-export class SystemModule { }
+export class SystemModule {}

@@ -1,10 +1,13 @@
 <div class="block">
+
   <div class="title">Регистрация</div>
-  <div class="input">
+  <div >{{msg}}</div>
+  <form class="input" [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="field">
       <input
         class="input-field"
         type="text"
+        formControlName="email"
         name=""
         placeholder="Введите Email"
       />
@@ -13,6 +16,7 @@
       <input
         class="input-field"
         type="text"
+        formControlName="username"
         name=""
         placeholder="Введите username"
       />
@@ -21,6 +25,7 @@
       <input
         class="input-field"
         type="text"
+        formControlName="firstname"
         name=""
         placeholder="Введите имя"
       />
@@ -29,6 +34,7 @@
       <input
         class="input-field"
         type="text"
+        formControlName="lastname"
         name=""
         placeholder="Введите фамилию"
       />
@@ -36,20 +42,13 @@
     <div class="field">
       <input
         class="input-field"
-        type="date"
-        name=""
-        placeholder="Введите дату рождения"
-      />
-    </div>
-    <div class="field">
-      <input
-        class="input-field"
+        formControlName="password"
         type="password"
         name=""
         placeholder="Введите ваш пароль"
       />
     </div>
-    <button class="btn" (click)="goLog()">Зарегистрироваться</button>
-  </div>
+    <button class="btn">Зарегистрироваться</button>
+  </form>
   <a class="a-text" routerLink="/login">-Вход-</a>
 </div>
