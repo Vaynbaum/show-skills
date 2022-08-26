@@ -1,23 +1,24 @@
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { CKEditorModule } from 'ng2-ckeditor';
-import { FormsModule } from '@angular/forms';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { TestEditorComponent } from './test-editor/test-editor.component';
+import { LogModule } from './log/log.module';
+import { AuthService } from './shared/services/auth.service';
+import { CookieService } from './shared/services/cookie.service';
+import { SystemModule } from './system/system.module';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    TestEditorComponent
-  ],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
+    HttpClientModule,
+    LogModule,
     AppRoutingModule,
-    FormsModule,
-    CKEditorModule
+    SystemModule,
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+  providers: [AuthService, CookieService],
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

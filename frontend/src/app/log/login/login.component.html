@@ -1,0 +1,45 @@
+<div class="block">
+  <div class="title">Вход</div>
+  <div class="alert-{{ message.type }}" *ngIf="message.text">
+    {{ message.text }}
+  </div>
+  <form [formGroup]="form" class="input" (ngSubmit)="onSubmit()">
+    <div
+      class="field"
+      [ngClass]="{
+        'has-error': form.get('email')?.invalid && form.get('email')?.touched
+      }">
+      <input
+        formControlName="email"
+        class="input-field"
+        type="text"
+        name=""
+        placeholder="Введите Email" />
+      <div
+        class="form-help-text"
+        *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+        <span>{{ inputs.email() }}</span>
+      </div>
+    </div>
+
+    <div
+      class="field"
+      [ngClass]="{
+        'has-error': form.get('password')?.invalid && form.get('password')?.touched
+      }">
+      <input
+        formControlName="password"
+        class="input-field"
+        type="password"
+        name=""
+        placeholder="Введите ваш пароль" />
+      <div
+        class="form-help-text"
+        *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+        <span>{{ inputs.password() }}</span>
+      </div>
+    </div>
+    <button class="btn">Вход</button>
+  </form>
+  <a class="a-text" routerLink="/registration">-Зарегистрироваться-</a>
+</div>

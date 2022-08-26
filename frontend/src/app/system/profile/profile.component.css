@@ -1,0 +1,14 @@
+.block {
+  display: grid;
+  grid-template-rows: 1fr, 1fr;
+  gap: 20px;
+}
+.profile {
+  background-color: aquamarine;
+  display: grid;
+  grid-template-columns: 300px auto;
+  gap: 20px;
+}
+.articles {
+  background-color: rgb(238, 209, 167);
+}

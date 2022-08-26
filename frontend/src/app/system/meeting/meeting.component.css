@@ -1,0 +1,37 @@
+.block {
+  height: 130px;
+  display: flex;
+  margin: 20px 20%;
+  align-items: center;
+
+  background: #e8d0f2;
+  padding: 0 30px;
+  border-radius: 20px;
+}
+.left {
+  width: 700px;
+  font-family: MontserratMedium;
+}
+.right {
+  justify-content: center;
+  align-items: center;
+  float: right;
+  margin-left: 300px;
+}
+.title {
+  font-size: 25px;
+}
+.topic {
+  font-size: 15px;
+}
+.date {
+  margin-top: 10px;
+  font-size: 15px;
+}
+.txt {
+  font-family: MontserratBold;
+  align-items: center;
+  text-align: center;
+  font-weight: 700;
+  font-size: 35px;
+}

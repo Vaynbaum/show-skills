@@ -1,0 +1,21 @@
+.alert-danger,
+.alert-success,
+.alert-warning {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+}
+.alert-danger {
+  background-color: rgba(180, 91, 91, 0.664);
+  color: #fff;
+}
+
+.alert-success {
+  background-color: rgba(85, 192, 94, 0.664);
+  color: rgba(58, 119, 63, 0.664);
+}
+.alert-warning {
+  background-color: rgba(221, 209, 42, 0.877);
+  color: rgba(131, 89, 41, 0.664);
+}

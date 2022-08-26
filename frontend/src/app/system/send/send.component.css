@@ -1,0 +1,36 @@
+.block {
+  background: #b0eaf8;
+  height: 300px;
+  margin: 10px 30%;
+  align-items: center;
+  padding: 0 30px;
+  border-radius: 20px;
+  text-align: center;
+}
+.title {
+  font-family: MontserratMedium;
+  font-size: 30px;
+  padding-top: 10px;
+}
+.content {
+  display: flex;
+  text-align: center;
+  margin: 20px 25%;
+}
+.btn {
+  margin-top: 100px;
+  position: absolute;
+  text-decoration: none; /* убирать подчёркивание у ссылок */
+  user-select: none; /* убирать выделение текста */
+  background: #f2b705; /* фон кнопки */
+  padding: .7em 1.5em; /* отступ от текста */
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.btn:hover {
+  background: #f1c130;  /* при наведении курсора мышки */
+}
+textarea[name="details"] {
+  resize: none;
+}
