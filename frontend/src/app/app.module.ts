@@ -1,4 +1,5 @@
 import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -13,6 +14,8 @@ import { SystemModule } from './system/system.module';
   declarations: [AppComponent],
   imports: [
     BrowserModule,
+    HttpClientModule,
+    LogModule,
     HttpClientModule,
     LogModule,
     AppRoutingModule,

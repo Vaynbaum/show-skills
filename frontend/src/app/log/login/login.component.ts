@@ -67,7 +67,7 @@ export class LoginComponent implements OnInit {
       }
       return '';
     },
-    
+
     password: () => {
       if (this.form?.get?.('password')?.['errors']?.['required']) {
         return 'Пароль не может быть пустым.';

@@ -15,7 +15,7 @@ Users can also add to themselves the `skills` they own. Users get access to the 
 
 Also, one of the main classes is `posts` that users can create. Posts include `comments` and `likes`, `skills` related to this post and the `author` of the post.
 
-![Пользователь](https://user-images.githubusercontent.com/78900834/179996044-47bf6af7-8719-406d-879e-d6418880b7b3.png)
+<img width="700px" src="https://user-images.githubusercontent.com/78900834/180272104-da56ec5b-6467-4a4d-b603-7282cec34c5c.png">
 
 # Authorization and access to methods
 `Access tokens` are used to grant access to protected system resources only to authorized users. After authorization, the user receives a pair of `access` and `refresh` tokens.
