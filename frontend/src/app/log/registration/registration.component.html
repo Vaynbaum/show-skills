@@ -96,7 +96,7 @@
         <span>{{ inputs.password() }}</span>
       </div>
     </div>
-    <button class="btn">Зарегистрироваться</button>
+    <button [disabled]="form.invalid" class="btn">Зарегистрироваться</button>
   </form>
   <a class="a-text" routerLink="/login">-Вход-</a>
 </div>

@@ -1,4 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { ShortUserResponseModel } from 'src/app/shared/models/ShortUserResponseModel';
+import { SubscribeModel } from 'src/app/shared/models/SubscribeModel';
+import { UserModel } from 'src/app/shared/models/UserModel';
+import { ProfileService } from 'src/app/shared/services/profile.service';
 
 @Component({
   selector: 'app-subs',
@@ -7,9 +12,25 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SubsComponent implements OnInit {
 
-  constructor() { }
-
+  constructor(private profileService: ProfileService,private router: Router) { }
+  user: UserModel|null = null;
+  // subs: SubscribeModel[]|undefined =[];
   ngOnInit(): void {
+    this.user=this.profileService.User;
+    console.log(this.user);
+    console.log(this.user?.subscriptions);
+    this.profileService.userInfoUpdated.subscribe(() => {
+      this.user=this.profileService.User;
+      console.log(this.user);
+      console.log(this.user?.subscriptions);
+    });
   }
 
+  goToPerson(username:any){
+    this.router.navigate(['/guest'], {
+      queryParams: {
+        username: username,
+      },
+    });
+  }
 }

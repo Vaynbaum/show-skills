@@ -2,6 +2,7 @@ import {NgModule} from '@angular/core';
 import {Router, RouterModule, Routes} from '@angular/router';
 import { AdminComponent } from './admin/admin.component';
 import { ArticleComponent } from './article/article.component';
+import { CreateComponent } from './create/create.component';
 import { EditComponent } from './edit/edit.component';
 import { GuestComponent } from './guest/guest.component';
 import { HomeComponent } from './home/home.component';
@@ -23,7 +24,8 @@ const routes: Routes = [
       {path:'article', component: ArticleComponent},
       {path:'guest', component: GuestComponent},
       {path:'edit', component: EditComponent},
-      {path:'admin', component: AdminComponent}
+      {path:'admin', component: AdminComponent},
+      {path:'create', component: CreateComponent}
   ] }
 ];
 

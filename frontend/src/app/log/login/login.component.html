@@ -39,7 +39,7 @@
         <span>{{ inputs.password() }}</span>
       </div>
     </div>
-    <button class="btn">Вход</button>
+    <button [disabled]="form.invalid" class="btn">Вход</button>
   </form>
   <a class="a-text" routerLink="/registration">-Зарегистрироваться-</a>
 </div>

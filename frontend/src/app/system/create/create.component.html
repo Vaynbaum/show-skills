@@ -1,0 +1,29 @@
+<ckeditor [(ngModel)]="ckeditorContent"></ckeditor>
+
+<button (click)="unloadImage()">Загрузить картинку</button>
+<input
+  id="file-input"
+  class="recordIdea-form--group---file"
+  type="file"
+  (change)="fileChange($event)"
+  accept=".jpg, .jpeg, .png, .gif, .bmp"
+/>
+<div *ngIf="urlImage">{{urlImage}}</div>
+<form action="" [formGroup]="form" >
+  <input
+    type="text"
+    formControlName="name"
+    placeholder="Введите название поста">
+
+  <select formControlName="skill" value="Выберете навык">
+    <option
+      *ngFor="let skill of skills; index as i;"
+      [value]="i">
+      {{skill.name}}
+  </option>
+  </select>
+</form>
+
+<button (click)="unloadPost()">Сохранить статью</button>
+
+

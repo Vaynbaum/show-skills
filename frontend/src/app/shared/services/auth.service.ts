@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable, Output } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -7,6 +7,7 @@ import { SignupModel } from '../models/SignupModel';
 import { AuthModel } from '../models/AuthModel';
 import { CookieService } from './cookie.service';
 import { PairTokensModel } from '../models/PairTokensModel';
+import { Router } from '@angular/router';
 
 const KEY_ACCESS_TOKEN = 'access_token';
 const KEY_REFRESH_TOKEN = 'refresh_token';
@@ -15,8 +16,12 @@ const KEY_REFRESH_TOKEN = 'refresh_token';
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private http: HttpClient, private cookieService: CookieService) {}
-
+  constructor(
+    private http: HttpClient,
+    private cookieService: CookieService,
+    private router: Router
+  ) {}
+  @Output() TokenRefreshed = new EventEmitter();
   private handleError(error: HttpErrorResponse) {
     if (error.status === 0) {
       // A client-side or network error occurred. Handle it accordingly.
@@ -45,23 +50,55 @@ export class AuthService {
       .pipe(catchError(this.handleError));
   }
 
-  RefreshToken() {}
+  RefreshToken() {
+    let token = this.cookieService.getCookie(KEY_REFRESH_TOKEN);
 
-  IsAuthenticated() {}
+    this.http
+      .get(`${url}/auth/refresh_token`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .pipe(catchError(this.handleError))
+      .subscribe(
+        (response) => {
+          this.saveAccessToken((response as any).access_token);
+          this.TokenRefreshed.emit()
+        },
+        (err) => {
+          this.cookieService.deleteCookie(KEY_ACCESS_TOKEN);
+          this.cookieService.deleteCookie(KEY_REFRESH_TOKEN);
+          this.router.navigate(['/login'], {
+            queryParams: {
+              authAgain: true,
+            },
+          });
+        }
+      );
+  }
 
-  SaveTokens(pair: PairTokensModel) {
-    this.cookieService.setCookie({
-      name: KEY_ACCESS_TOKEN,
-      value: pair.access_token,
-      expireDays: 1,
-      secure: true,
-    });
+  IsAuthenticated() {
+    let token = this.cookieService.getCookie(KEY_ACCESS_TOKEN);
+    return token!='' ? true : false;
+  }
+
+  private saveRefreshToken(token: string) {
     this.cookieService.setCookie({
       name: KEY_REFRESH_TOKEN,
-      value: pair.refresh_token,
+      value: token,
       expireDays: 7,
       secure: true,
     });
+  }
+  private saveAccessToken(token: string) {
+    this.cookieService.setCookie({
+      name: KEY_ACCESS_TOKEN,
+      value: token,
+      expireDays: 1,
+      secure: true,
+    });
+  }
+  SaveTokens(pair: PairTokensModel) {
+    this.saveAccessToken(pair.access_token);
+    this.saveRefreshToken(pair.refresh_token);
   }
 
   GetAccessToken() {

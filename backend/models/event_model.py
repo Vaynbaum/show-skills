@@ -30,3 +30,22 @@ class EventInputModel(BaseModel):
 class EventInDBModel(EventInputModel):
     key: Union[str, None]
     author: ShortUserModelResponse
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "name": "Вебинар по Angular",
+                "date": datetime_handler.now_next_days(2),
+                "format_event": ONLINE,
+                "place": {"name_platform": "VK", "URL": "https://example"},
+                "key": "key",
+                "author": {
+                    "username": "ivanov",
+                    "lastname": "Иванов",
+                    "firstname": "Иван",
+                    "username": "ivanov",
+                    "key": "key",
+                    "url": "url",
+                },
+            }
+        }

@@ -2,13 +2,70 @@
   display: grid;
   grid-template-rows: 1fr, 1fr;
   gap: 20px;
+  margin: 0px 2%;
 }
 .profile {
-  background-color: aquamarine;
   display: grid;
   grid-template-columns: 300px auto;
   gap: 20px;
 }
-.articles {
-  background-color: rgb(238, 209, 167);
+
+.username {
+  font-family: MontserratBold;
+  font-size:25px;
+}
+.block-txt {
+  margin: 10px 0;
+}
+.block-title {
+  font-family: MontserratMedium;
+  font-size:20px;
+}
+.block-info {
+  font-family: MontserratMedium;
+  font-size:14px;
+  margin: 5px 0;
+}
+.avatar {
+  margin: 0px 19%;
+  text-align: center;
+}
+.btn {
+  margin-right: 30px;
+}
+.title {
+  font-family: MontserratMedium;
+  font-size:30px;
+}
+
+.article {
+  height: 130px;
+  display: flex;
+  margin: 10px 0;
+  align-items: center;
+
+  background: #b0eaf8;
+  padding: 0 30px;
+  border-radius: 20px;
+}
+.left {
+  width: 700px;
+  font-family: MontserratMedium;
+}
+.right {
+  justify-content: center;
+  align-items: center;
+  float: right;
+  margin-left: 300px;
+}
+.title-article {
+  font-size: 25px;
+  cursor: pointer;
+}
+.topic {
+  font-size: 15px;
+}
+.date {
+  margin-top: 20px;
+  font-size: 15px;
 }

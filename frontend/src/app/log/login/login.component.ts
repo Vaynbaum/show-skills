@@ -6,6 +6,7 @@ import { FrontendMessage } from 'src/app/shared/models/FrontendMessage';
 import { PairTokensModel } from 'src/app/shared/models/PairTokensModel';
 import { AuthService } from 'src/app/shared/services/auth.service';
 import { CookieService } from 'src/app/shared/services/cookie.service';
+import { ProfileService } from 'src/app/shared/services/profile.service';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +17,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-
+    private profileService: ProfileService,
     private authService: AuthService
   ) {}
   message: FrontendMessage = {
@@ -99,6 +100,8 @@ export class LoginComponent implements OnInit {
           (response as PairTokensModel).refresh_token
         );
         this.authService.SaveTokens(pair);
+
+        this.profileService.UpdateInformation();
         this.router.navigate(['./home']);
       },
       (err) => {

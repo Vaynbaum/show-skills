@@ -11,6 +11,7 @@ from models.subscription_model import SubscriptionModel
 
 datetime_handler = DatetimeHandler()
 
+
 class AuthModel(BaseModel):
     email: str
     password: str
@@ -43,7 +44,7 @@ class SignupModel(BaseModel):
         }
 
 
-class UserInDBModel(BaseModel):
+class FullUserModelResponse(BaseModel):
     username: str
     firstname: str
     lastname: str
@@ -60,6 +61,9 @@ class UserInDBModel(BaseModel):
 
     subscriptions: List[SubscriptionModel]
     role_key: Union[str, None]
+
+
+class UserInDBModel(FullUserModelResponse):
     password: str
 
 

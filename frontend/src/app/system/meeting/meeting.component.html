@@ -1,23 +1,15 @@
 <div class="txt">Список встреч</div>
-<div class="block">
+<div class="block" *ngFor="let event of events">
   <div class="left">
-    <div class="title">Название встречи</div>
-    <div class="topic">Организатор:</div>
+    <div class="title">{{ event.name }}</div>
+    <div class="topic">Организатор: {{ event.author.username }}</div>
     <div class="topic">Место проведения:</div>
-    <div class="date">Начало: 20.02.2022 18:00</div>
+    <div class="date">
+      <div class="topic">Начало:</div>
+      <div [innerHtml]="formatData(event.date)"></div>
+    </div>
   </div>
   <div class="right">
-    <img src="../../../../../assets/images/online.png" width="70" />
-  </div>
-</div>
-<div class="block">
-  <div class="left">
-    <div class="title">Название встречи</div>
-    <div class="topic">Организатор:</div>
-    <div class="topic">Место проведения:</div>
-    <div class="date">Начало: 20.02.2022 18:00</div>
-  </div>
-  <div class="right">
-    <img src="../../../../../assets/images/online.png" width="70" />
+    <img [src]="selectSrc(event.format_event)" width="70" />
   </div>
 </div>

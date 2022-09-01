@@ -1,4 +1,3 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { SystemComponent } from './system.component';
 import { HomeComponent } from './home/home.component';
@@ -18,6 +17,8 @@ import { GuestComponent } from './guest/guest.component';
 import { MeetingComponent } from './meeting/meeting.component';
 import { SendComponent } from './send/send.component';
 import { SubsComponent } from './subs/subs.component';
+import { CreateComponent } from './create/create.component';
+import { CKEditorModule } from 'ng2-ckeditor';
 
 @NgModule({
   declarations: [
@@ -36,12 +37,14 @@ import { SubsComponent } from './subs/subs.component';
     GuestComponent,
     EditComponent,
     ArticleComponent,
+    CreateComponent,
   ],
   imports: [
     CommonModule,
     SystemRoutingModule,
     ReactiveFormsModule,
     FormsModule,
+    CKEditorModule
   ],
 })
 export class SystemModule {}

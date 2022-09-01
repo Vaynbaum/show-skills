@@ -1,0 +1,26 @@
+.title {
+  font-family: MontserratMedium;
+  font-size: 30px;
+  margin: 0 20%;
+}
+.info {
+  justify-content: center;
+  align-items: center;
+  margin: 0 20%;
+}
+.block-txt {
+  margin: 10px 0;
+}
+.block-title {
+  font-family: MontserratMedium;
+  font-size:20px;
+}
+.block-info {
+  font-family: MontserratMedium;
+  font-size:16px;
+  margin: 5px 0;
+}
+.block-info::selection {
+  color: #ff0; /* Цвет текста */
+  background: #000; /* Цвет фона */
+ }

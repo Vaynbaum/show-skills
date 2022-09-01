@@ -15,6 +15,7 @@ from handlers.access.owner.own_owner import OwnOwner
 from models.http_error import HTTPError
 from models.message_model import MessageModel
 from models.post_model import PostInDBModel, PostInputModel
+from models.unload_content_post_model import UnloadContentPostModel
 from models.response_items import ResponseItems
 
 security = HTTPBearer()
@@ -167,8 +168,7 @@ async def get_content_by_name(
     summary="Uploading an post content to disk",
 )
 async def upload_content_to_post(
-    content_html: str = Query(example="<h1>Пример</h1>"),
-    name_post: str = Query(example="Пример названия поста"),
+    content: UnloadContentPostModel,
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: DatabaseHandler = Depends(get_db),
     drive: DriveHandler = Depends(get_drive),
@@ -180,7 +180,7 @@ async def upload_content_to_post(
         post_controller = PostController(db, drive)
         return post_controller.upload_content(content_html, name_post)
 
-    return await inside_func(content_html, name_post)
+    return await inside_func(content.content, content.name)
 
 
 @router.get(

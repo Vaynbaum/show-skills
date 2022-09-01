@@ -23,10 +23,12 @@
 }
 .topic {
   font-size: 15px;
+  margin-right: 15px;
 }
 .date {
   margin-top: 10px;
   font-size: 15px;
+  display: flex;
 }
 .txt {
   font-family: MontserratBold;

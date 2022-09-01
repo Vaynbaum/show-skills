@@ -41,4 +41,7 @@ export class CookieService {
         ? 'secure'
         : '');
   }
+  deleteCookie(name: string) {
+    this.setCookie({ name: name, value: '', expireDays: -1 });
+  }
 }

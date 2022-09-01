@@ -1,1 +1,47 @@
-<p>edit works!</p>
+<div class="title">Добавить данные</div>
+<div class="info">
+  <div class="alert-{{ message.type }}" *ngIf="message.text">
+    {{ message.text }}
+  </div>
+  <form class="input" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div
+      class="block-txt"
+      [ngClass]="{
+        'has-error': form.get('place_residence')?.invalid && form.get('place_residence')?.touched
+      }">
+      <div class="block-title">Город</div>
+      <input
+        class="input-field"
+        type="text"
+        formControlName="place_residence"
+        name=""
+        placeholder="Введите Город"
+      />
+      <div
+        class="form-help-text"
+        *ngIf="form.get('place_residence')?.invalid && form.get('place_residence')?.touched">
+        <span>{{ inputs.place_residence() }}</span>
+      </div>
+    </div>
+    <div
+      class="block-txt"
+      [ngClass]="{
+        'has-error': form.get('birth_date')?.invalid && form.get('birth_date')?.touched
+      }">
+      <div class="block-title">Дата рождения</div>
+      <input
+        class="input-field"
+        type="date"
+        formControlName="birth_date"
+        name=""
+
+      />
+      <div
+        class="form-help-text"
+        *ngIf="form.get('birth_date')?.invalid && form.get('birth_date')?.touched">
+        <span>{{ inputs.birth_date() }}</span>
+      </div>
+    </div>
+    <button [disabled]="form.invalid" class="btn">Добавить данные</button>
+  </form>
+</div>

@@ -13,7 +13,7 @@ from handlers.access_handler import AccessHandler
 from models.http_error import HTTPError
 from models.message_model import MessageModel
 from models.response_items import ResponseItems
-from models.user_model import UserAdditionalDataModel, UserModelResponse
+from models.user_model import FullUserModelResponse, UserAdditionalDataModel, UserModelResponse
 
 security = HTTPBearer()
 router = APIRouter(tags=["User"])
@@ -75,6 +75,41 @@ async def get_user_by_username(
 ):
     user_controller = UserController(db)
     return await user_controller.get_user_by_username(username)
+
+
+@router.get(
+    "/my",
+    responses={
+        200: {"model": FullUserModelResponse},
+        400: {
+            "model": HTTPError,
+            "description": """If the user key is invalid, invalid data
+            or the user data update was not successful""",
+        },
+        401: {
+            "model": HTTPError,
+            "description": "If the token is invalid, expired or scope is invalid",
+        },
+        403: {
+            "model": HTTPError,
+            "description": """If authentication failed, invalid authentication credentials 
+            or no access rights to this method""",
+        },
+        500: {
+            "model": HTTPError,
+            "description": "If an error occurred while verifying access",
+        },
+    },
+    summary="Getting a user information by token from the database",
+)
+async def get_user_by_token(
+    credentials: HTTPAuthorizationCredentials = Security(security),
+    db: DatabaseHandler = Depends(get_db),
+):
+    user_controller = UserController(db)
+    user = await user_controller.get_user_by_token(credentials.credentials)
+    print(user)
+    return FullUserModelResponse(**user.dict())
 
 
 @router.delete(
