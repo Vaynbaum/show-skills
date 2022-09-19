@@ -6,11 +6,13 @@ import { CreateComponent } from './create/create.component';
 import { EditComponent } from './edit/edit.component';
 import { GuestComponent } from './guest/guest.component';
 import { HomeComponent } from './home/home.component';
+import { LinkComponent } from './link/link.component';
 import { MeetingComponent } from './meeting/meeting.component';
 import { ProfileComponent } from './profile/profile.component';
 import { SendComponent } from './send/send.component';
 import { SubsComponent } from './subs/subs.component';
 import { SystemComponent } from './system.component';
+import { TestComponent } from './test/test.component';
 import { TopicComponent } from './topic/topic.component';
 
 const routes: Routes = [
@@ -25,7 +27,9 @@ const routes: Routes = [
       {path:'guest', component: GuestComponent},
       {path:'edit', component: EditComponent},
       {path:'admin', component: AdminComponent},
-      {path:'create', component: CreateComponent}
+      {path:'create', component: CreateComponent},
+      {path:'link', component: LinkComponent},
+      {path:'test', component: TestComponent}
   ] }
 ];
 

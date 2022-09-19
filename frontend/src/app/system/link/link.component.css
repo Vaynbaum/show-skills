@@ -24,7 +24,7 @@
   color: #ff0; /* Цвет текста */
   background: #000; /* Цвет фона */
  }
- .text-field__input {
+.text-field__input {
   display: block;
   width: 300px;
   height: calc(2.25rem + 2px);

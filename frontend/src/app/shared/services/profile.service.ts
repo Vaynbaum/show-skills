@@ -11,8 +11,11 @@ import { UserService } from './user.service';
   providedIn: 'root',
 })
 export class ProfileService {
+  public username:string="";
+  public SUser: UserModel | null = null;
   public User: UserModel | null = null;
   public Events: EventModel[] = [];
+  @Output() sUserInfoUpdated: EventEmitter<any> = new EventEmitter();
   @Output() userInfoUpdated: EventEmitter<any> = new EventEmitter();
   @Output() eventInfoUpdated: EventEmitter<any> = new EventEmitter();
   constructor(
@@ -20,8 +23,12 @@ export class ProfileService {
     private userService: UserService,
     private eventService: EventService,
   ) {}
-  
+
   UpdateInformation() {
+    // this.userService.GetUserByUsername(this.username).subscribe((result) => {
+    //   this.SUser = result as UserModel;
+    //   this.sUserInfoUpdated.emit();
+    // });
     this.userService.GetFullInformationAuthUser().subscribe((result) => {
       this.User = result;
       this.userInfoUpdated.emit();

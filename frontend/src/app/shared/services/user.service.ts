@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { LinkModel } from '../models/LinkModel';
 import { UserAdditionalDataModel } from '../models/UserAdditionalDataModel';
 import { UserModel } from '../models/UserModel';
 import { AuthService } from './auth.service';
@@ -64,6 +65,10 @@ export class UserService {
         );
     });
   }
+  GetUserByUsername(username: string) {
+    console.log(username);
+    return this.http.get(`${url}/user/profile/${username}`);
+  }
 
   Add(user: UserAdditionalDataModel): Observable<string> {
     let token = this.authService.GetAccessToken();
@@ -98,6 +103,118 @@ export class UserService {
               });
             }
             observer.error(err.error.detail as string);
+          }
+        );
+    });
+  }
+  UnloadSub(username: string): Observable<string> {
+    let token = this.authService.GetAccessToken();
+    return new Observable((observer) => {
+      this.http
+        .post(`${url}/subscription/arrange`, {},{
+          headers: { Authorization: `Bearer ${token}` },
+          params: { username_favorite: username },
+        })
+        .pipe(catchError(this.handleError))
+        .subscribe(
+          (response) => {
+            observer.next(response as string);
+          },
+          (err) => {
+            if (err.status === 401 || err.status === 403) {
+              this.authService.RefreshToken();
+              this.authService.TokenRefreshed.subscribe(() => {
+                token = this.authService.GetAccessToken();
+                this.http
+                .post(`${url}/subscription/arrange`, {},{
+                  headers: { Authorization: `Bearer ${token}` },
+                  params: { username_favorite: username },
+                })
+                  .subscribe(
+                    (response) => {
+                      observer.next(response as string);
+                    },
+                    (err) => {
+                      observer.error(err.error.detail);
+                    }
+                  );
+              });
+            }
+            observer.error(err.error.detail);
+          }
+        );
+    });
+  }
+  AddLink(link: LinkModel): Observable<LinkModel> {
+    let token = this.authService.GetAccessToken();
+    return new Observable((observer) => {
+      this.http
+        .post(`${url}/link/add`, link, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .pipe(catchError(this.handleError))
+        .subscribe(
+          (response) => {
+            observer.next(response as LinkModel);
+          },
+          (err) => {
+            if (err.status === 401 || err.status === 403) {
+              this.authService.RefreshToken();
+              this.authService.TokenRefreshed.subscribe(() => {
+                token = this.authService.GetAccessToken();
+                this.http
+                  .post(`${url}/link/add`, link, {
+                    headers: { Authorization: `Bearer ${token}` },
+                  })
+                  .subscribe(
+                    (response) => {
+                      observer.next(response as LinkModel);
+                    },
+                    (err) => {
+                      observer.error(err.error.detail);
+                    }
+                  );
+              });
+            }
+            observer.error(err.error.detail);
+          }
+        );
+    });
+  }
+  DeleateSub(username: string): Observable<string> {
+    let token = this.authService.GetAccessToken();
+    return new Observable((observer) => {
+      this.http
+        .delete(`${url}/subscription/annul`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { username_favorite: username },
+        })
+        .pipe(catchError(this.handleError))
+        .subscribe(
+          (response) => {
+            observer.next(response as string);
+          },
+          (err) => {
+            if (err.status === 401 || err.status === 403) {
+              this.authService.RefreshToken();
+              this.authService.TokenRefreshed.subscribe(() => {
+                token = this.authService.GetAccessToken();
+                this.http
+                  .delete(`${url}/subscription/annul`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                    params: { username_favorite: username },
+                  })
+                  .subscribe(
+                    (response) => {
+                      observer.next(response as string);
+                    },
+                    (err) => {
+                      observer.error(err.error.detail);
+                    }
+                  );
+              });
+            }
+            observer.error(err.error.detail);
           }
         );
     });

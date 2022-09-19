@@ -8,7 +8,7 @@ import { FrontendMessage } from 'src/app/shared/models/FrontendMessage';
 @Component({
   selector: 'app-registration',
   templateUrl: './registration.component.html',
-  styleUrls: ['./registration.component.css'],
+  styleUrls: ['./registration.component.css', '../../../assets/styles/alert.css'],
 })
 export class RegistrationComponent implements OnInit {
   constructor(private router: Router, private authService: AuthService) {}

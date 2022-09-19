@@ -1,0 +1,47 @@
+<div class="title">Добавить ссылку</div>
+<div class="info">
+  <div class="alert-{{ message.type }}" *ngIf="message.text">
+    {{ message.text }}
+  </div>
+  <form class="input" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div
+      class="block-txt"
+      [ngClass]="{
+        'has-error': form.get('name')?.invalid && form.get('name')?.touched
+      }">
+      <div class="block-title">Название</div>
+      <input
+      class="text-field__input"
+        type="text"
+        formControlName="name"
+        name=""
+        placeholder="Введите название"
+      />
+      <div
+        class="form-help-text"
+        *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
+        <span>{{ inputs.name() }}</span>
+      </div>
+    </div>
+    <div
+      class="block-txt"
+      [ngClass]="{
+        'has-error': form.get('url')?.invalid && form.get('url')?.touched
+      }">
+      <div class="block-title">Ссылка</div>
+      <input
+      class="text-field__input"
+        type="text"
+        formControlName="url"
+        name=""
+        placeholder="Введите ссылку"
+      />
+      <div
+        class="form-help-text"
+        *ngIf="form.get('url')?.invalid && form.get('url')?.touched">
+        <span>{{ inputs.url() }}</span>
+      </div>
+    </div>
+    <button [disabled]="form.invalid" class="btn">Добавить ссылку</button>
+  </form>
+</div>

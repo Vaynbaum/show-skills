@@ -1,5 +1,4 @@
 <div class="block">
-
   <div class="title">Регистрация</div>
   <div class="alert-{{ message.type }}" *ngIf="message.text">
     {{ message.text }}
@@ -9,7 +8,8 @@
       class="field"
       [ngClass]="{
         'has-error': form.get('email')?.invalid && form.get('email')?.touched
-      }">
+      }"
+    >
       <input
         class="input-field"
         type="text"
@@ -19,15 +19,18 @@
       />
       <div
         class="form-help-text"
-        *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+        *ngIf="form.get('email')?.invalid && form.get('email')?.touched"
+      >
         <span>{{ inputs.email() }}</span>
       </div>
     </div>
     <div
       class="field"
       [ngClass]="{
-        'has-error': form.get('username')?.invalid && form.get('username')?.touched
-      }">
+        'has-error':
+          form.get('username')?.invalid && form.get('username')?.touched
+      }"
+    >
       <input
         class="input-field"
         type="text"
@@ -37,15 +40,18 @@
       />
       <div
         class="form-help-text"
-        *ngIf="form.get('username')?.invalid && form.get('username')?.touched">
+        *ngIf="form.get('username')?.invalid && form.get('username')?.touched"
+      >
         <span>{{ inputs.username() }}</span>
       </div>
     </div>
     <div
       class="field"
       [ngClass]="{
-        'has-error': form.get('firstname')?.invalid && form.get('firstname')?.touched
-      }">
+        'has-error':
+          form.get('firstname')?.invalid && form.get('firstname')?.touched
+      }"
+    >
       <input
         class="input-field"
         type="text"
@@ -55,15 +61,18 @@
       />
       <div
         class="form-help-text"
-        *ngIf="form.get('firstname')?.invalid && form.get('firstname')?.touched">
+        *ngIf="form.get('firstname')?.invalid && form.get('firstname')?.touched"
+      >
         <span>{{ inputs.firstname() }}</span>
       </div>
     </div>
     <div
       class="field"
       [ngClass]="{
-        'has-error': form.get('lastname')?.invalid && form.get('lastname')?.touched
-      }">
+        'has-error':
+          form.get('lastname')?.invalid && form.get('lastname')?.touched
+      }"
+    >
       <input
         class="input-field"
         type="text"
@@ -73,15 +82,18 @@
       />
       <div
         class="form-help-text"
-        *ngIf="form.get('lastname')?.invalid && form.get('lastname')?.touched">
+        *ngIf="form.get('lastname')?.invalid && form.get('lastname')?.touched"
+      >
         <span>{{ inputs.lastname() }}</span>
       </div>
     </div>
     <div
       class="field"
       [ngClass]="{
-        'has-error': form.get('password')?.invalid && form.get('password')?.touched
-      }">
+        'has-error':
+          form.get('password')?.invalid && form.get('password')?.touched
+      }"
+    >
       <input
         class="input-field"
         formControlName="password"
@@ -92,7 +104,8 @@
       />
       <div
         class="form-help-text"
-        *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+        *ngIf="form.get('password')?.invalid && form.get('password')?.touched"
+      >
         <span>{{ inputs.password() }}</span>
       </div>
     </div>

@@ -1,12 +1,12 @@
 <div class="section">
   <div class="box">
     <h3>Подписки</h3>
-    <div *ngFor="let sub of user?.subscriptions" (click)="goToPerson(sub.favorite.username)" class="list" >
+    <div *ngFor="let sub of user?.subscriptions; let i = index" (click)="goToPerson(sub.favorite.username)" class="list" >
       <div class="imgBx">
         <img src="../../../../../assets/images/profile.png">
       </div>
       <div class="content">
-        <h2 class="rank"><small>#</small>1</h2>
+        <h2 class="rank"><small>#</small>{{i+1}}</h2>
         <h4 >{{sub.favorite.username}}</h4>
         <p>Music</p>
       </div>

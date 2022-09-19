@@ -6,43 +6,51 @@
         src="../../../../../assets/images/profile.png"
         width="200px"
       />
-      <div class="username">{{user?.username}}</div>
-      <div class="block-title">{{user?.role?.name_ru}}</div>
+      <div class="username">{{ user?.username }}</div>
+      <div class="block-title">{{ user?.role?.name_ru }}</div>
     </div>
     <div class="info">
       <div class="block-txt">
         <div class="block-title">Имя</div>
-        <div class="block-info">{{user?.firstname}}</div>
+        <div class="block-info">{{ user?.firstname }}</div>
       </div>
       <div class="block-txt">
         <div class="block-title">Фамилия</div>
-        <div class="block-info">{{user?.lastname}}</div>
+        <div class="block-info">{{ user?.lastname }}</div>
       </div>
       <div *ngIf="user?.birth_date" class="block-txt">
         <div class="block-title">Дата рождения</div>
-        <div class="block-info" [innerHtml]="formatData(user?.birth_date)"></div>
+        <div
+          class="block-info"
+          [innerHtml]="formatData(user?.birth_date)"
+        ></div>
       </div>
       <div *ngIf="user?.place_residence" class="block-txt">
         <div class="block-title">Город</div>
-        <div class="block-info">{{user?.place_residence}}</div>
+        <div class="block-info">{{ user?.place_residence }}</div>
       </div>
       <div class="block-txt">
         <div class="block-title">Почта</div>
-        <div class="block-info">{{user?.email}}</div>
+        <div class="block-info">{{ user?.email }}</div>
       </div>
       <div class="block-txt">
-        <div class="block-title">Ссылки</div>
+        <div class="block-title" >Ссылки</div>
         <!-- <div class="block-info" *ngFor="let l of user?.links">{{l.name}}</div>
         <div class="block-info">ov4arenko.cat@yandex.ru</div> -->
-        <div class="block-info">ov4arenko.cat@yandex.ru</div>
+        <div class="real-links" *ngFor="let l of user?.links">
+          <div class="block-info">{{l.name}}:</div>
+          <a class="block-info" href="{{l.url}}">{{l.url}}</a>
+        </div>
       </div>
       <div class="links">
-        <button class="btn" [routerLink]="['/', 'edit']">Добавить данные</button>
+        <button class="btn" [routerLink]="['/', 'edit']">
+          Добавить данные
+        </button>
         <button class="btn" [routerLink]="['/', 'create']">
           Добавить статью
         </button>
-        <button class="btn" [routerLink]="['/', 'create']">
-          Добавить встречу
+        <button class="btn" [routerLink]="['/', 'link']">
+          Добавить ссылки
         </button>
       </div>
     </div>

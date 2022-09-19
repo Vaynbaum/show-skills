@@ -69,3 +69,12 @@ input {
   font-size: 15px;
   text-decoration: none;
 }
+.form-help-text {
+  /* position: absolute; */
+  color: white;
+  text-align: center;
+  width: 300px;
+  /* margin-left: 400px;
+  top: 50px;
+  padding-top: 20px; */
+}

@@ -19,6 +19,8 @@ import { SendComponent } from './send/send.component';
 import { SubsComponent } from './subs/subs.component';
 import { CreateComponent } from './create/create.component';
 import { CKEditorModule } from 'ng2-ckeditor';
+import { LinkComponent } from './link/link.component';
+import { TestComponent } from './test/test.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +40,8 @@ import { CKEditorModule } from 'ng2-ckeditor';
     EditComponent,
     ArticleComponent,
     CreateComponent,
+    LinkComponent,
+    TestComponent,
   ],
   imports: [
     CommonModule,

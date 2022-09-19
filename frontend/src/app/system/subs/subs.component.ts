@@ -17,12 +17,8 @@ export class SubsComponent implements OnInit {
   // subs: SubscribeModel[]|undefined =[];
   ngOnInit(): void {
     this.user=this.profileService.User;
-    console.log(this.user);
-    console.log(this.user?.subscriptions);
     this.profileService.userInfoUpdated.subscribe(() => {
       this.user=this.profileService.User;
-      console.log(this.user);
-      console.log(this.user?.subscriptions);
     });
   }
 

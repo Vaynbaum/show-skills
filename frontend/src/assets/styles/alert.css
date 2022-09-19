@@ -2,20 +2,25 @@
 .alert-success,
 .alert-warning {
   width: 100%;
-  padding: 10px;
+  /* padding: 10px; */
   border-radius: 4px;
   text-align: center;
+  color: rgb(253, 27, 27);
+  text-shadow: 1px 0 1px #000,
+0 1px 1px #000,
+-1px 0 1px #000,
+0 -1px 1px #000;
 }
 .alert-danger {
-  background-color: rgba(180, 91, 91, 0.664);
-  color: #fff;
+  /* background-color: rgba(180, 91, 91, 0.664); */
+  color: rgb(253, 27, 27);
 }
 
 .alert-success {
-  background-color: rgba(85, 192, 94, 0.664);
-  color: rgba(58, 119, 63, 0.664);
+  /* background-color: rgba(85, 192, 94, 0.664); */
+  color: rgba(25, 202, 40, 0.664);
 }
 .alert-warning {
-  background-color: rgba(221, 209, 42, 0.877);
-  color: rgba(131, 89, 41, 0.664);
+  /* background-color: rgba(221, 209, 42, 0.877); */
+  color: rgba(226, 238, 57, 0.664);
 }

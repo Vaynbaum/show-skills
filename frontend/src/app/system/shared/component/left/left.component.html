@@ -1,14 +1,14 @@
 <div class="navigation">
-  <ul>
-    <li class="list">
+  <ul *ngFor="let sub of subs">
+    <li class="list" (click)="goToPerson(sub.favorite.username)">
       <a>
         <span class="icon">
           <img src="../../../../../assets/images/profile.png" />
         </span>
-        <span class="title">Hordor</span>
+        <span class="title">{{sub.favorite.username}}</span>
       </a>
     </li>
-    <li class="list">
+    <!-- <li class="list">
       <a>
         <span class="icon"><img src="../../../../../assets/images/profile.png" /></span>
         <span class="title">Hordor</span>
@@ -67,7 +67,7 @@
         <span class="icon"><img src="../../../../../assets/images/profile.png" /></span>
         <span class="title">Hordor</span>
       </a>
-    </li>
+    </li> -->
     <div class="indicator"></div>
   </ul>
   <button class="btn" routerLink="/subs">все</button>
