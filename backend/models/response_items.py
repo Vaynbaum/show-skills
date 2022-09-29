@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar, List, Union
+from typing import Generic, TypeVar, List
 from pydantic.generics import GenericModel
 
 Item = TypeVar("Item")

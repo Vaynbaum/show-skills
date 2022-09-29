@@ -1,5 +1,4 @@
-from datetime import datetime
-from typing import List, Union
+from typing import List
 from pydantic import BaseModel
 
 from models.comment_model import CommentModel
