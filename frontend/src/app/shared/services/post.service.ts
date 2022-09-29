@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 import { url } from './config';
 import axios from 'axios';
 import { UnloadContentModel } from '../models/ContentUnloadModel';
-import { UnloadPostModel } from '../models/unloadPostModel';
+import { UnloadPostModel } from '../models/UnloadPostModel';
 import { PostModel } from '../models/PostModel';
 @Injectable({
   providedIn: 'root',
