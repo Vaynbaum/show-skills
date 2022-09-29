@@ -4,7 +4,7 @@ import axios from 'axios';
 import { UnloadContentModel } from 'src/app/shared/models/ContentUnloadModel';
 import { ResponseItemsModel } from 'src/app/shared/models/ResponseItemsModel';
 import { SkillModel } from 'src/app/shared/models/SkillModel';
-import { UnloadPostModel } from 'src/app/shared/models/unloadPostModel';
+import { UnloadPostModel } from 'src/app/shared/models/UnloadPostModel';
 import { AuthService } from 'src/app/shared/services/auth.service';
 import { url } from 'src/app/shared/services/config';
 import { PostService } from 'src/app/shared/services/post.service';
