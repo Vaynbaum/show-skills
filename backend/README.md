@@ -5,7 +5,7 @@ Backend is part of the "Show-skills" application, which allows you to `demonstra
 ![logo](https://user-images.githubusercontent.com/78900834/179995939-36a85425-f78d-43e4-8f05-d4ec7b2ed8e3.png)
 
 ***
-<h2><a  href="https://show-skills.deta.dev/docs#/">Live Demo</a></h2>
+<h2><a  href="https://showskillsback-1-v1549677.deta.app/">Live Demo</a></h2>
 
 
 # Domain model
